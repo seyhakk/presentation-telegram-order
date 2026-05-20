@@ -1,0 +1,9 @@
+node_modules/
+.vs/
+__MACOSX/
+*.bak
+*.suo
+*.suo.*
+.DS_Store
+.DS_Store?
+._*
