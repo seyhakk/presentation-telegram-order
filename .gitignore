@@ -7,3 +7,5 @@ __MACOSX/
 .DS_Store
 .DS_Store?
 ._*
+
+.vercel
