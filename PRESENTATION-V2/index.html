@@ -586,27 +586,24 @@ body::after {
 }
 
 /* ============================================
-   SECTION: TECH
+   SECTION: ADVANTAGES
    ============================================ */
-#tech {
+#advantages {
   background: linear-gradient(165deg, var(--charcoal) 0%, #1F1816 100%);
 }
-.tech-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 32px;
+.adv-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 32px;
 }
-.tech-item {
-  padding: 16px 14px; border-radius: 12px;
-  background: var(--surface); border: 1px solid var(--border);
-  display: flex; align-items: center; gap: 12px;
-  transition: all 0.3s;
+.adv-card {
+  padding: 28px 20px; border-radius: 16px;
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+  text-align: center;
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.tech-item:hover {
-  border-color: var(--brass); transform: translateY(-2px);
-  background: rgba(201, 169, 110, 0.04);
-}
-.tech-icon { font-size: 22px; flex-shrink: 0; }
-.tech-name { font-weight: 600; font-size: 13px; }
-.tech-category { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.adv-card:hover { transform: translateY(-4px); border-color: rgba(201,169,110,0.2); background: rgba(201,169,110,0.03); }
+.adv-icon { font-size: 36px; display: block; margin-bottom: 12px; }
+.adv-title { font-weight: 700; font-size: 16px; color: var(--text); margin-bottom: 6px; }
+.adv-desc { font-size: 13px; color: var(--text-soft); line-height: 1.6; max-width: 280px; margin: 0 auto; }
 
 /* ============================================
    SECTION: CTA
@@ -659,7 +656,7 @@ body::after {
   .hero-title { font-size: clamp(36px, 10vw, 52px); }
   .section-title { font-size: clamp(28px, 8vw, 40px); }
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  .tech-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .adv-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .feature-grid { grid-template-columns: 1fr; }
   .app-showcase { gap: 24px; }
   .label-tag { font-size: 10px; }
@@ -680,7 +677,7 @@ body::after {
   .section-title { font-size: clamp(24px, 9vw, 32px); }
   .hero-sub { font-size: 14px; }
   .btn { padding: 12px 24px; font-size: 13px; }
-  .tech-grid { grid-template-columns: 1fr; }
+  .adv-grid { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
   .stat-value { font-size: 32px; }
   .hero-actions { flex-direction: column; align-items: stretch; }
@@ -690,7 +687,7 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .reveal, .reveal-left, .reveal-right, .reveal-scale { opacity: 1; transform: none; transition: none; }
   .hero-float { animation: none; }
-  .card:hover, .feature-card:hover, .tech-item:hover, .arch-node:hover { transform: none; }
+  .card:hover, .feature-card:hover, .adv-card:hover, .arch-node:hover { transform: none; }
 }
 </style>
 <script>
@@ -1042,23 +1039,21 @@ body::after {
 </section>
 
 <!-- ============================================
-     SECTION 8: TECH STACK
-     ============================================ -->
-<section class="section" id="tech" data-index="8">
+      SECTION 8: ADVANTAGES
+      ============================================ -->
+<section class="section" id="advantages" data-index="8">
   <div class="section-inner">
-    <span class="label-tag reveal">Technology</span>
-    <h2 class="section-title reveal reveal-delay-1">Modern Stack, <span class="italic">Zero Bloat</span></h2>
-    <p class="section-sub reveal reveal-delay-2">Built with proven technologies that scale. No unnecessary dependencies. Just fast, reliable software.</p>
+    <span class="label-tag reveal">Advantages</span>
+    <h2 class="section-title reveal reveal-delay-1">Built for <span class="italic">Performance</span></h2>
+    <p class="section-sub reveal reveal-delay-2">A modern foundation focused on reliability, speed, and security — no unnecessary complexity.</p>
     <div class="accent-line reveal reveal-delay-3"></div>
-    <div class="tech-grid">
-      <div class="tech-item reveal"><div class="tech-icon">&#128187;</div><div><div class="tech-name">Next.js</div><div class="tech-category">Frontend</div></div></div>
-      <div class="tech-item reveal reveal-delay-1"><div class="tech-icon">&#9729;</div><div><div class="tech-name">Supabase</div><div class="tech-category">Backend &amp; DB</div></div></div>
-      <div class="tech-item reveal reveal-delay-2"><div class="tech-icon">&#128172;</div><div><div class="tech-name">Telegram API</div><div class="tech-category">Messaging</div></div></div>
-      <div class="tech-item reveal reveal-delay-3"><div class="tech-icon">&#9889;</div><div><div class="tech-name">React</div><div class="tech-category">UI Library</div></div></div>
-      <div class="tech-item reveal"><div class="tech-icon">&#128451;</div><div><div class="tech-name">PostgreSQL</div><div class="tech-category">Database</div></div></div>
-      <div class="tech-item reveal reveal-delay-1"><div class="tech-icon">&#128752;</div><div><div class="tech-name">Vercel</div><div class="tech-category">Hosting</div></div></div>
-      <div class="tech-item reveal reveal-delay-2"><div class="tech-icon">&#128279;</div><div><div class="tech-name">Webhooks</div><div class="tech-category">Integration</div></div></div>
-      <div class="tech-item reveal reveal-delay-3"><div class="tech-icon">&#128274;</div><div><div class="tech-name">RLS</div><div class="tech-category">Security</div></div></div>
+    <div class="adv-grid">
+      <div class="adv-card reveal"><span class="adv-icon">&#9889;</span><div class="adv-title">Real-time</div><div class="adv-desc">Every update syncs instantly across all devices. No page refreshes, no delays.</div></div>
+      <div class="adv-card reveal reveal-delay-1"><span class="adv-icon">&#128737;</span><div class="adv-title">Secure by Default</div><div class="adv-desc">End-to-end encryption, row-level security, and Telegram-authenticated sessions.</div></div>
+      <div class="adv-card reveal reveal-delay-2"><span class="adv-icon">&#128640;</span><div class="adv-title">Lightning Fast</div><div class="adv-desc">Optimized for instant load times. No bloat, no unnecessary dependencies.</div></div>
+      <div class="adv-card reveal"><span class="adv-icon">&#128260;</span><div class="adv-title">Always Available</div><div class="adv-desc">Designed for 99.9% uptime with automatic scaling and redundant infrastructure.</div></div>
+      <div class="adv-card reveal reveal-delay-1"><span class="adv-icon">&#128200;</span><div class="adv-title">Data-Driven</div><div class="adv-desc">Real-time analytics, smart reporting, and actionable insights at your fingertips.</div></div>
+      <div class="adv-card reveal reveal-delay-2"><span class="adv-icon">&#128101;</span><div class="adv-title">Team Ready</div><div class="adv-desc">Multi-user with role-based access. Unlimited staff, drivers, and managers.</div></div>
     </div>
   </div>
 </section>
