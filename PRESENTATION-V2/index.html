@@ -38,8 +38,8 @@
   --section-py: clamp(60px, 10vh, 120px);
 }
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { background: var(--bg); scroll-behavior: smooth; }
-body {
+html { background: var(--bg); scroll-behavior: smooth; overscroll-behavior: none; }
+body { overscroll-behavior: none;
   font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
@@ -972,41 +972,44 @@ body::after {
     if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prev(); }
   });
 
-  // Wheel with debounce
+  // Wheel — only navigate when user is at page edge,
+  // never interrupt mid-section scrolling
+  var wheelAccum = 0;
   document.addEventListener('wheel', function(e) {
-    if (isScrolling) return;
-    var hero = document.getElementById('hero');
-    var atTop = window.scrollY === 0;
-    var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 10;
+    var atTop = window.scrollY <= 0;
+    var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 5;
 
-    // On hero section, block scroll-down to prevent accidental skip
-    if (hero.getBoundingClientRect().top >= -50 && e.deltaY > 0) {
-      // Allow scroll
+    // Only intercept wheel when at page boundaries
+    if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
+      if (isScrolling) return;
+      clearTimeout(scrollTimeout);
+      isScrolling = true;
+      scrollTimeout = setTimeout(function() { isScrolling = false; }, 600);
+      if (e.deltaY > 0) next();
+      else prev();
     }
-
-    clearTimeout(scrollTimeout);
-    isScrolling = true;
-    scrollTimeout = setTimeout(function() { isScrolling = false; }, 800);
-
-    if (e.deltaY > 0) { next(); }
-    else { prev(); }
+    // Otherwise let the browser scroll naturally
   }, { passive: true });
 
-  // Touch swipe
+  // Touch swipe — require fast, deliberate gesture
   var touchStartY = 0;
   var touchStartX = 0;
+  var touchStartTime = 0;
   document.addEventListener('touchstart', function(e) {
     touchStartY = e.changedTouches[0].screenY;
     touchStartX = e.changedTouches[0].screenX;
+    touchStartTime = Date.now();
   }, { passive: true });
   document.addEventListener('touchend', function(e) {
     if (isScrolling) return;
     var dy = e.changedTouches[0].screenY - touchStartY;
     var dx = e.changedTouches[0].screenX - touchStartX;
-    if (Math.abs(dy) < 30 || Math.abs(dy) < Math.abs(dx) * 1.5) return;
+    var dt = Date.now() - touchStartTime;
+    // Must be fast (< 300ms), long (> 60px), and primarily vertical
+    if (dt > 300 || Math.abs(dy) < 60 || Math.abs(dy) < Math.abs(dx) * 1.5) return;
     clearTimeout(scrollTimeout);
     isScrolling = true;
-    scrollTimeout = setTimeout(function() { isScrolling = false; }, 800);
+    scrollTimeout = setTimeout(function() { isScrolling = false; }, 600);
     if (dy < 0) next();
     else prev();
   }, { passive: true });
