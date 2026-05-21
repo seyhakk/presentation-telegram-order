@@ -349,172 +349,133 @@ body::after {
 }
 
 /* ============================================
-   SECTION: ARCHITECTURE — Cinematic Redesign
+   SECTION: ARCHITECTURE — Flow Diagram
    ============================================ */
 #architecture {
-  background: linear-gradient(170deg, #0F0D0C 0%, #1A1513 40%, #161110 100%);
+  background: linear-gradient(170deg, #0D0B0A 0%, #161210 40%, #120F0D 100%);
   position: relative;
   overflow: hidden;
 }
-#architecture::before {
-  content: ''; position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 800px; height: 800px;
-  background: radial-gradient(circle, rgba(201, 169, 110, 0.04) 0%, transparent 60%);
-  pointer-events: none;
+/* Ambient glow orbs */
+.arch-orb { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(80px); opacity: 0.15; }
+.arch-orb-1 { top: 10%; left: 5%; width: 400px; height: 400px; background: var(--brass); animation: orbFloat 8s ease-in-out infinite; }
+.arch-orb-2 { bottom: 10%; right: 5%; width: 350px; height: 350px; background: #7A9A7A; animation: orbFloat 10s ease-in-out infinite reverse; }
+.arch-orb-3 { top: 50%; left: 50%; transform: translate(-50%,-50%); width: 500px; height: 500px; background: var(--burgundy-light); animation: orbFloat 12s ease-in-out infinite 2s; }
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(20px, -20px) scale(1.05); }
+  66% { transform: translate(-15px, 15px) scale(0.95); }
 }
-.arch-container {
-  max-width: 1000px; margin: 0 auto;
+/* === SVG connector === */
+.arch-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.arch-svg line, .arch-svg path { stroke-dasharray: 6 4; animation: dashFlow 1.5s linear infinite; }
+@keyframes dashFlow { to { stroke-dashoffset: -20; } }
+/* === Container === */
+.arch-flow-wrap {
+  max-width: 960px; margin: 0 auto;
   display: flex; flex-direction: column; align-items: center;
-  gap: 0; position: relative;
+  gap: 0; position: relative; z-index: 2;
 }
-/* === Core Database (centerpiece) === */
-.arch-core {
-  position: relative;
-  margin: 12px 0;
-  display: flex; align-items: center; justify-content: center;
+/* === Layer label with gradient lines === */
+.arch-layer-label {
+  display: flex; align-items: center; gap: 16px;
+  margin: 6px 0 14px; width: 100%; justify-content: center;
 }
-.arch-core-glow {
-  position: absolute; width: 300px; height: 300px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(201, 169, 110, 0.12) 0%, rgba(201, 169, 110, 0.04) 40%, transparent 70%);
-  animation: corePulse 3s ease-in-out infinite;
-  pointer-events: none;
+.arch-layer-line { height: 1px; flex: 1; max-width: 200px; }
+.arch-layer-text {
+  font-size: 9px; letter-spacing: 0.22em; font-weight: 500;
+  text-transform: uppercase; white-space: nowrap;
 }
-@keyframes corePulse {
-  0%, 100% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.08); opacity: 1; }
+/* === Node styles === */
+.arch-node {
+  border-radius: 16px; text-align: center;
+  backdrop-filter: blur(6px);
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  border: 1.5px solid;
 }
-.arch-core-node {
-  position: relative; z-index: 2;
-  width: 220px; padding: 28px 16px;
-  border-radius: 20px;
-  text-align: center;
-  background: rgba(201, 169, 110, 0.05);
-  border: 1.5px solid rgba(201, 169, 110, 0.2);
-  box-shadow: 0 0 40px rgba(201, 169, 110, 0.06), inset 0 0 30px rgba(201, 169, 110, 0.03);
-  backdrop-filter: blur(4px);
-}
-.arch-core-icon { font-size: 36px; margin-bottom: 6px; display: block; }
-.arch-core-title {
-  font-family: var(--font-display);
-  font-size: 22px; color: var(--brass); font-weight: 400;
-  letter-spacing: -0.01em;
-}
-.arch-core-desc {
-  font-size: 11px; color: var(--text-muted);
-  margin-top: 4px; letter-spacing: 0.04em;
-  font-weight: 400;
-}
-.arch-core-badge {
-  display: inline-block;
-  padding: 3px 12px; margin-top: 8px;
-  border-radius: 100px; font-size: 9px;
-  background: rgba(201, 169, 110, 0.1);
-  color: var(--brass-light); letter-spacing: 0.08em;
-  text-transform: uppercase; font-weight: 500;
-}
-/* === Data flow dots (animated) === */
-.arch-flow-dots {
-  display: flex; gap: 6px; justify-content: center;
-  margin: 4px 0;
-}
-.arch-flow-dot {
-  width: 4px; height: 4px; border-radius: 50%;
-  background: var(--brass);
-  animation: dotTravel 2s ease-in-out infinite;
-}
-.arch-flow-dot:nth-child(2) { animation-delay: 0.3s; }
-.arch-flow-dot:nth-child(3) { animation-delay: 0.6s; }
-.arch-flow-dot:nth-child(4) { animation-delay: 0.9s; }
-.arch-flow-dot:nth-child(5) { animation-delay: 1.2s; }
-@keyframes dotTravel {
-  0%, 100% { opacity: 0.15; transform: scale(0.6); }
-  50% { opacity: 1; transform: scale(1); }
-}
-/* === Connector pipes === */
-.arch-pipe {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 2px 0;
-}
-.arch-pipe-line { width: 2px; flex: 1; min-height: 20px; background: linear-gradient(to bottom, rgba(201, 169, 110, 0.15), rgba(201, 169, 110, 0.05)); }
-.arch-pipe-h {
-  display: flex; align-items: center; gap: 6px;
-  width: 60%; justify-content: center;
-}
-.arch-pipe-h-line { flex: 1; height: 2px; background: linear-gradient(to right, transparent, rgba(201, 169, 110, 0.1), transparent); }
-.arch-pipe-node { width: 8px; height: 8px; border-radius: 2px; background: rgba(201, 169, 110, 0.15); flex-shrink: 0; transform: rotate(45deg); }
-/* === Cards row === */
-.arch-cards {
-  display: flex; gap: 14px; justify-content: center;
-  flex-wrap: wrap;
-}
-.arch-card {
-  flex: 1; min-width: 140px; max-width: 200px;
-  padding: 16px 14px; border-radius: 14px;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.arch-card:hover { transform: translateY(-4px); border-color: rgba(201, 169, 110, 0.25); background: rgba(201, 169, 110, 0.04); }
-.arch-card-icon { font-size: 26px; display: block; margin-bottom: 4px; }
-.arch-card-title { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 2px; }
-.arch-card-desc { font-size: 11px; color: var(--text-muted); line-height: 1.35; }
-.arch-card.tag-dinein { border-top: 2.5px solid var(--brass); }
-.arch-card.tag-dinein .arch-card-title { color: var(--brass); }
-.arch-card.tag-delivery { border-top: 2.5px solid #7A9A7A; }
-.arch-card.tag-delivery .arch-card-title { color: #7A9A7A; }
-.arch-card.tag-admin { border-top: 2.5px solid var(--burgundy-light); }
-.arch-card.tag-admin .arch-card-title { color: var(--burgundy-light); }
-.arch-card.tag-bot { border-top: 2.5px solid rgba(255, 255, 255, 0.15); }
-/* === Layer labels === */
-.arch-layer {
-  font-size: 9px; color: rgba(255, 255, 255, 0.2);
-  text-transform: uppercase; letter-spacing: 0.18em;
-  text-align: center; font-weight: 500;
-  margin: 6px 0 10px;
-}
-/* === Top customer card === */
+.arch-node:hover { transform: translateY(-3px); }
+.arch-node-icon { display: block; }
+.arch-node-title { font-weight: 700; letter-spacing: -0.01em; }
+.arch-node-desc { line-height: 1.35; }
+
+/* Customer */
 .arch-customer {
-  padding: 14px 36px; border-radius: 100px;
-  text-align: center;
-  background: rgba(201, 169, 110, 0.06);
-  border: 1.5px solid rgba(201, 169, 110, 0.15);
+  padding: 12px 32px; border-radius: 100px;
   display: inline-flex; align-items: center; gap: 12px;
+  background: rgba(201, 169, 110, 0.06);
+  border-color: rgba(201, 169, 110, 0.2);
 }
-.arch-customer-icon { font-size: 22px; }
-.arch-customer-text { font-weight: 600; font-size: 14px; color: var(--brass-light); }
-.arch-customer-desc { font-size: 11px; color: var(--text-muted); }
-/* === Bots row === */
+.arch-customer .arch-node-icon { font-size: 20px; }
+.arch-customer .arch-node-title { font-size: 14px; color: var(--brass-light); }
+.arch-customer .arch-node-desc { font-size: 11px; color: var(--text-muted); }
+
+/* App cards grid */
+.arch-apps {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  width: 100%; max-width: 680px;
+}
+.arch-app {
+  padding: 20px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+.arch-app:hover { border-color: rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.04); }
+.arch-app .arch-node-icon { font-size: 28px; margin-bottom: 6px; }
+.arch-app .arch-node-title { font-size: 14px; color: var(--text); margin-bottom: 2px; }
+.arch-app .arch-node-desc { font-size: 11px; color: var(--text-muted); }
+.arch-app.brand-dinein { border-top: 2.5px solid var(--brass); }
+.arch-app.brand-dinein .arch-node-title { color: var(--brass); }
+.arch-app.brand-delivery { border-top: 2.5px solid #7A9A7A; }
+.arch-app.brand-delivery .arch-node-title { color: #9ABA7A; }
+.arch-app.brand-admin { border-top: 2.5px solid var(--burgundy-light); }
+.arch-app.brand-admin .arch-node-title { color: var(--burgundy-light); }
+
+/* Database core */
+.arch-db-wrap { position: relative; display: flex; align-items: center; justify-content: center; margin: 4px 0; }
+.arch-db-glow {
+  position: absolute; width: 260px; height: 260px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 169, 110, 0.15) 0%, rgba(201, 169, 110, 0.04) 40%, transparent 70%);
+  animation: dbPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes dbPulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+.arch-db {
+  position: relative; z-index: 2;
+  padding: 24px 20px; min-width: 200px;
+  background: rgba(201, 169, 110, 0.04);
+  border-color: rgba(201, 169, 110, 0.2);
+  box-shadow: 0 0 40px rgba(201, 169, 110, 0.05);
+}
+.arch-db .arch-node-icon { font-size: 32px; margin-bottom: 4px; }
+.arch-db .arch-node-title { font-family: var(--font-display); font-size: 20px; color: var(--brass); font-weight: 400; }
+.arch-db .arch-node-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.arch-db-badge {
+  display: inline-block; padding: 2px 12px; margin-top: 6px;
+  border-radius: 100px; font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase; font-weight: 500;
+  background: rgba(201, 169, 110, 0.1); color: var(--brass-light);
+}
+
+/* Bots row */
 .arch-bots {
-  display: flex; gap: 12px; justify-content: center;
-  flex-wrap: wrap;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  width: 100%; max-width: 560px;
 }
 .arch-bot {
-  padding: 12px 18px; border-radius: 10px;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  min-width: 120px; flex: 1; max-width: 180px;
-  transition: all 0.3s;
+  padding: 14px 10px;
+  background: rgba(255, 255, 255, 0.015);
+  border-color: rgba(255, 255, 255, 0.04);
 }
-.arch-bot:hover { border-color: rgba(201, 169, 110, 0.2); background: rgba(201, 169, 110, 0.03); }
-.arch-bot-icon { font-size: 20px; display: block; margin-bottom: 2px; }
-.arch-bot-title { font-weight: 600; font-size: 13px; }
-.arch-bot-desc { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
-/* === Bottom flow summary === */
-.arch-summary {
-  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
-  margin-top: 12px;
-}
-.arch-summary span {
-  font-size: 10px; color: var(--text-muted);
-  padding: 4px 12px; border-radius: 6px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  font-weight: 400;
-}
+.arch-bot:hover { border-color: rgba(201, 169, 110, 0.15); background: rgba(201, 169, 110, 0.02); }
+.arch-bot .arch-node-icon { font-size: 20px; margin-bottom: 2px; }
+.arch-bot .arch-node-title { font-size: 13px; }
+.arch-bot .arch-node-desc { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
+/* Spacer */
+.arch-spacer { height: 8px; }
 
 /* ============================================
    SECTION: FEATURES
@@ -729,7 +690,7 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .reveal, .reveal-left, .reveal-right, .reveal-scale { opacity: 1; transform: none; transition: none; }
   .hero-float { animation: none; }
-  .card:hover, .feature-card:hover, .tech-item:hover, .arch-card:hover, .arch-bot:hover, .arch-core-node:hover { transform: none; }
+  .card:hover, .feature-card:hover, .tech-item:hover, .arch-node:hover { transform: none; }
 }
 </style>
 <script>
@@ -785,112 +746,147 @@ body::after {
     <p class="section-sub reveal reveal-delay-2">A real-time ecosystem where customers, apps, database, and Telegram bots work together seamlessly.</p>
     <div class="accent-line reveal reveal-delay-3"></div>
 
-    <div class="arch-container reveal reveal-delay-4">
+    <!-- Ambient orbs -->
+    <div class="arch-orb arch-orb-1"></div>
+    <div class="arch-orb arch-orb-2"></div>
+    <div class="arch-orb arch-orb-3"></div>
+
+    <!-- SVG animated connectors -->
+    <svg class="arch-svg" viewBox="0 0 960 600" preserveAspectRatio="xMidYMax meet">
+      <!-- Customer → Apps (branching) -->
+      <line x1="480" y1="80" x2="480" y2="130" stroke="rgba(201,169,110,0.3)" stroke-width="2" opacity="0.6"/>
+      <line x1="480" y1="130" x2="160" y2="190" stroke="rgba(201,169,110,0.2)" stroke-width="1.5" opacity="0.4"/>
+      <line x1="480" y1="130" x2="480" y2="190" stroke="rgba(201,169,110,0.2)" stroke-width="1.5" opacity="0.4"/>
+      <line x1="480" y1="130" x2="800" y2="190" stroke="rgba(201,169,110,0.2)" stroke-width="1.5" opacity="0.4"/>
+
+      <!-- Apps → Database (converging) -->
+      <line x1="160" y1="270" x2="160" y2="300" stroke="rgba(201,169,110,0.2)" stroke-width="1.5" opacity="0.4"/>
+      <line x1="480" y1="270" x2="480" y2="300" stroke="rgba(201,169,110,0.2)" stroke-width="1.5" opacity="0.4"/>
+      <line x1="800" y1="270" x2="800" y2="300" stroke="rgba(201,169,110,0.2)" stroke-width="1.5" opacity="0.4"/>
+      <line x1="160" y1="300" x2="480" y2="360" stroke="rgba(201,169,110,0.15)" stroke-width="1.5" opacity="0.3"/>
+      <line x1="480" y1="300" x2="480" y2="360" stroke="rgba(201,169,110,0.15)" stroke-width="1.5" opacity="0.3"/>
+      <line x1="800" y1="300" x2="480" y2="360" stroke="rgba(201,169,110,0.15)" stroke-width="1.5" opacity="0.3"/>
+
+      <!-- Database → Bots (branching) -->
+      <line x1="480" y1="440" x2="480" y2="475" stroke="rgba(201,169,110,0.2)" stroke-width="1.5" opacity="0.4"/>
+      <line x1="480" y1="475" x2="200" y2="530" stroke="rgba(201,169,110,0.15)" stroke-width="1.5" opacity="0.3"/>
+      <line x1="480" y1="475" x2="480" y2="530" stroke="rgba(201,169,110,0.15)" stroke-width="1.5" opacity="0.3"/>
+      <line x1="480" y1="475" x2="760" y2="530" stroke="rgba(201,169,110,0.15)" stroke-width="1.5" opacity="0.3"/>
+
+      <!-- Flow dots (animated circles) -->
+      <circle r="3" fill="var(--brass)" opacity="0.6">
+        <animateMotion dur="2.5s" repeatCount="indefinite" path="M480,80 L480,130 L160,190"/>
+      </circle>
+      <circle r="3" fill="var(--brass)" opacity="0.6">
+        <animateMotion dur="2.5s" repeatCount="indefinite" begin="0.3s" path="M480,80 L480,130 L480,190"/>
+      </circle>
+      <circle r="3" fill="var(--brass)" opacity="0.6">
+        <animateMotion dur="2.5s" repeatCount="indefinite" begin="0.6s" path="M480,80 L480,130 L800,190"/>
+      </circle>
+      <circle r="3" fill="var(--brass)" opacity="0.6">
+        <animateMotion dur="3s" repeatCount="indefinite" begin="1s" path="M160,270 L160,300 L480,360"/>
+      </circle>
+      <circle r="3" fill="var(--brass)" opacity="0.6">
+        <animateMotion dur="3s" repeatCount="indefinite" begin="1.3s" path="M480,270 L480,300 L480,360"/>
+      </circle>
+      <circle r="3" fill="var(--brass)" opacity="0.6">
+        <animateMotion dur="3s" repeatCount="indefinite" begin="1.6s" path="M800,270 L800,300 L480,360"/>
+      </circle>
+      <circle r="3" fill="var(--brass)" opacity="0.6">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="2s" path="M480,440 L480,475 L200,530"/>
+      </circle>
+      <circle r="3" fill="var(--brass)" opacity="0.6">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="2.3s" path="M480,440 L480,475 L480,530"/>
+      </circle>
+      <circle r="3" fill="var(--brass)" opacity="0.6">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="2.6s" path="M480,440 L480,475 L760,530"/>
+      </circle>
+    </svg>
+
+    <div class="arch-flow-wrap reveal reveal-delay-4">
       <!-- === CUSTOMER === -->
-      <div class="arch-customer">
-        <span class="arch-customer-icon">&#128100;</span>
-        <div><div class="arch-customer-text">Customer</div><div class="arch-customer-desc">Opens Telegram mini app or scans QR</div></div>
+      <div class="arch-node arch-customer">
+        <span class="arch-node-icon">&#128100;</span>
+        <div><div class="arch-node-title">Customer</div><div class="arch-node-desc">Opens Telegram mini app or scans QR</div></div>
       </div>
 
-      <!-- === CONNECTOR === -->
-      <div class="arch-pipe"><div class="arch-pipe-line"></div></div>
-      <div class="arch-pipe-h">
-        <div class="arch-pipe-h-line"></div>
-        <div class="arch-pipe-node"></div>
-        <div class="arch-pipe-h-line"></div>
-      </div>
+      <div class="arch-spacer"></div>
 
-      <!-- === APP LAYER === -->
-      <div class="arch-layer">Application Layer</div>
-      <div class="arch-cards">
-        <div class="arch-card tag-dinein">
-          <span class="arch-card-icon">&#128241;</span>
-          <div class="arch-card-title">Dine-In</div>
-          <div class="arch-card-desc">Browse, order &amp; pay from phone</div>
+      <!-- === APPLICATION LAYER === -->
+      <div class="arch-layer-label">
+        <div class="arch-layer-line" style="background:linear-gradient(to right,transparent,rgba(59,130,246,0.3));"></div>
+        <span class="arch-layer-text" style="color:rgba(96,165,250,0.7);">Application Layer</span>
+        <div class="arch-layer-line" style="background:linear-gradient(to left,transparent,rgba(59,130,246,0.3));"></div>
+      </div>
+      <div class="arch-apps">
+        <div class="arch-node arch-app brand-dinein">
+          <span class="arch-node-icon">&#128241;</span>
+          <div class="arch-node-title">Dine-In</div>
+          <div class="arch-node-desc">Browse, order &amp; pay from phone</div>
         </div>
-        <div class="arch-card tag-delivery">
-          <span class="arch-card-icon">&#128666;</span>
-          <div class="arch-card-title">Delivery</div>
-          <div class="arch-card-desc">GPS tracking &amp; driver dispatch</div>
+        <div class="arch-node arch-app brand-delivery">
+          <span class="arch-node-icon">&#128666;</span>
+          <div class="arch-node-title">Delivery</div>
+          <div class="arch-node-desc">GPS tracking &amp; driver dispatch</div>
         </div>
-        <div class="arch-card tag-admin">
-          <span class="arch-card-icon">&#128187;</span>
-          <div class="arch-card-title">Admin</div>
-          <div class="arch-card-desc">Kanban, stock, reports &mdash; 13 tools</div>
+        <div class="arch-node arch-app brand-admin">
+          <span class="arch-node-icon">&#128187;</span>
+          <div class="arch-node-title">Admin</div>
+          <div class="arch-node-desc">Kanban, stock, reports &mdash; 13 tools</div>
         </div>
       </div>
 
-      <!-- === DATA FLOW DOTS === -->
-      <div class="arch-flow-dots">
-        <div class="arch-flow-dot"></div>
-        <div class="arch-flow-dot"></div>
-        <div class="arch-flow-dot"></div>
-        <div class="arch-flow-dot"></div>
-        <div class="arch-flow-dot"></div>
-      </div>
+      <div class="arch-spacer"></div>
 
-      <!-- === CONNECTOR === -->
-      <div class="arch-pipe"><div class="arch-pipe-line"></div></div>
-      <div class="arch-pipe-h" style="width:50%;">
-        <div class="arch-pipe-h-line"></div>
-        <div class="arch-pipe-node"></div>
-        <div class="arch-pipe-h-line"></div>
+      <!-- === DATA LAYER === -->
+      <div class="arch-layer-label">
+        <div class="arch-layer-line" style="background:linear-gradient(to right,transparent,rgba(16,185,129,0.3));"></div>
+        <span class="arch-layer-text" style="color:rgba(52,211,153,0.7);">Data Layer</span>
+        <div class="arch-layer-line" style="background:linear-gradient(to left,transparent,rgba(16,185,129,0.3));"></div>
       </div>
-
-      <!-- === DATA LAYER — CORE === -->
-      <div class="arch-layer">Data Layer</div>
-      <div class="arch-core">
-        <div class="arch-core-glow"></div>
-        <div class="arch-core-node">
-          <span class="arch-core-icon">&#128451;</span>
-          <div class="arch-core-title">Supabase</div>
-          <div class="arch-core-desc">PostgreSQL &middot; Real-time &middot; 11 tables</div>
-          <span class="arch-core-badge">Real-time Sync</span>
+      <div class="arch-db-wrap">
+        <div class="arch-db-glow"></div>
+        <div class="arch-node arch-db">
+          <span class="arch-node-icon">&#128451;</span>
+          <div class="arch-node-title">Supabase</div>
+          <div class="arch-node-desc">PostgreSQL &middot; Real-time &middot; 11 tables</div>
+          <span class="arch-db-badge">Real-time Sync</span>
         </div>
       </div>
 
-      <!-- === DATA FLOW DOTS === -->
-      <div class="arch-flow-dots">
-        <div class="arch-flow-dot"></div>
-        <div class="arch-flow-dot"></div>
-        <div class="arch-flow-dot"></div>
-        <div class="arch-flow-dot"></div>
-        <div class="arch-flow-dot"></div>
-      </div>
-
-      <!-- === CONNECTOR === -->
-      <div class="arch-pipe"><div class="arch-pipe-line"></div></div>
-      <div class="arch-pipe-h" style="width:50%;">
-        <div class="arch-pipe-h-line"></div>
-        <div class="arch-pipe-node"></div>
-        <div class="arch-pipe-h-line"></div>
-      </div>
+      <div class="arch-spacer"></div>
 
       <!-- === INTEGRATION LAYER === -->
-      <div class="arch-layer">Integration Layer</div>
+      <div class="arch-layer-label">
+        <div class="arch-layer-line" style="background:linear-gradient(to right,transparent,rgba(14,165,233,0.3));"></div>
+        <span class="arch-layer-text" style="color:rgba(56,189,248,0.7);">Integration Layer</span>
+        <div class="arch-layer-line" style="background:linear-gradient(to left,transparent,rgba(14,165,233,0.3));"></div>
+      </div>
       <div class="arch-bots">
-        <div class="arch-bot">
-          <span class="arch-bot-icon">&#129302;</span>
-          <div class="arch-bot-title">Staff Bot</div>
-          <div class="arch-bot-desc">Alerts &amp; daily reports</div>
+        <div class="arch-node arch-bot">
+          <span class="arch-node-icon">&#129302;</span>
+          <div class="arch-node-title">Staff Bot</div>
+          <div class="arch-node-desc">Alerts &amp; daily reports</div>
         </div>
-        <div class="arch-bot">
-          <span class="arch-bot-icon">&#129302;</span>
-          <div class="arch-bot-title">Customer Bot</div>
-          <div class="arch-bot-desc">Receipts &amp; confirmations</div>
+        <div class="arch-node arch-bot">
+          <span class="arch-node-icon">&#129302;</span>
+          <div class="arch-node-title">Customer Bot</div>
+          <div class="arch-node-desc">Receipts &amp; confirmations</div>
         </div>
-        <div class="arch-bot">
-          <span class="arch-bot-icon">&#128279;</span>
-          <div class="arch-bot-title">Driver Hook</div>
-          <div class="arch-bot-desc">Assign &amp; live tracking</div>
+        <div class="arch-node arch-bot">
+          <span class="arch-node-icon">&#128279;</span>
+          <div class="arch-node-title">Driver Hook</div>
+          <div class="arch-node-desc">Assign &amp; live tracking</div>
         </div>
       </div>
 
-      <!-- === SUMMARY === -->
-      <div class="arch-summary">
-        <span>&#9654; Customer orders via app</span>
-        <span>&#9654; Supabase syncs in real-time</span>
-        <span>&#9654; Bots dispatch notifications</span>
+      <div class="arch-spacer"></div>
+
+      <!-- === SUMMARY FLOW === -->
+      <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:4px;">
+        <span style="font-size:9px;color:var(--text-muted);padding:3px 10px;border-radius:6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);">&#9654; Customer orders via app</span>
+        <span style="font-size:9px;color:var(--text-muted);padding:3px 10px;border-radius:6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);">&#9654; Supabase syncs in real-time</span>
+        <span style="font-size:9px;color:var(--text-muted);padding:3px 10px;border-radius:6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);">&#9654; Bots dispatch notifications</span>
       </div>
     </div>
   </div>
