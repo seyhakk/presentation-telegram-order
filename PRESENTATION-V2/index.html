@@ -1,0 +1,2576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#1A1614">
+<title>The Connected Restaurant — Telegram Order Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Satoshi:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Khmer:wght@300;400;500;600;700&family=Battambang:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --burgundy: #6B2A3A;
+  --burgundy-deep: #4A1C28;
+  --burgundy-light: #8A3A4E;
+  --brass: #C9A96E;
+  --brass-light: #DFC28A;
+  --brass-glow: rgba(201, 169, 110, 0.25);
+  --cream: #F7F0EB;
+  --cream-warm: #F0E6DE;
+  --charcoal: #1A1614;
+  --espresso: #2C2420;
+  --stone: #8A7A70;
+  --stone-light: #B0A49C;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Satoshi', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --nav-h: 64px;
+  --section-py: clamp(60px, 10vh, 120px);
+}
+[data-theme="light"] {
+  --surface: rgba(0, 0, 0, 0.04);
+  --surface-hover: rgba(0, 0, 0, 0.07);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.14);
+  --bg: #FAF8F5;
+  --text: #1A1614;
+  --text-soft: rgba(26, 22, 20, 0.7);
+  --text-muted: rgba(26, 22, 20, 0.4);
+}
+[data-theme="dark"] {
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-hover: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --bg: var(--charcoal);
+  --text: #F0EBE6;
+  --text-soft: rgba(240, 235, 230, 0.7);
+  --text-muted: rgba(240, 235, 230, 0.4);
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { background: var(--bg); scroll-behavior: smooth; overscroll-behavior: none; }
+body { overscroll-behavior: none;
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+[data-lang="km"] body,
+[data-lang="km"] .section-title,
+[data-lang="km"] .section-sub,
+[data-lang="km"] .hero-sub,
+[data-lang="km"] .feature-desc,
+[data-lang="km"] .adv-desc,
+[data-lang="km"] .flow-desc,
+[data-lang="km"] .flow-detail,
+[data-lang="km"] .app-desc,
+[data-lang="km"] .app-feature,
+[data-lang="km"] .pull-quote,
+[data-lang="km"] .cta-sub,
+[data-lang="km"] .arch-stat-label,
+[data-lang="km"] .stat-label,
+[data-lang="km"] .label-tag,
+[data-lang="km"] .hero-float,
+[data-lang="km"] .scroll-indicator span,
+[data-lang="km"] .arch-layer-text {
+  font-family: 'Battambang', 'Noto Sans Khmer', sans-serif;
+}
+[data-lang="km"] .section-title {
+  font-size: clamp(32px, 5.5vw, 68px);
+}
+[data-lang="km"] .hero-title {
+  font-size: clamp(38px, 7vw, 90px);
+}
+.lang-en, .lang-km { display: contents; }
+[data-lang="km"] .lang-en { display: none; }
+[data-lang="en"] .lang-km { display: none; }
+
+/* Onboarding always shows both languages */
+.onboarding .lang-en,
+.onboarding .lang-km {
+  display: block !important;
+}
+
+/* ============================================
+    ONBOARDING OVERLAY
+    ============================================ */
+.onboarding {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1A1614;
+  overflow-y: auto;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+.onboarding.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+[data-theme="light"] .onboarding {
+  background: #FAF8F5;
+}
+
+/* Background orbs */
+.onboarding-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.onboarding-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  animation: orbFloat 12s ease-in-out infinite;
+}
+.onboarding-orb-1 {
+  width: 300px; height: 300px;
+  background: var(--brass);
+  top: -10%; left: -5%;
+  animation-delay: 0s;
+}
+.onboarding-orb-2 {
+  width: 250px; height: 250px;
+  background: var(--burgundy-light);
+  bottom: -10%; right: -5%;
+  animation-delay: 4s;
+  animation-duration: 15s;
+}
+.onboarding-orb-3 {
+  width: 200px; height: 200px;
+  background: var(--brass-light);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: 8s;
+  animation-duration: 18s;
+}
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.05); }
+  66% { transform: translate(-20px, 30px) scale(0.95); }
+}
+
+.onboarding-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  width: 100%;
+  padding: 32px 24px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* Welcome Section */
+.onboarding-welcome {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.onboarding-main-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+.onboarding-main-title .title-km {
+  display: block;
+  font-family: 'Battambang', sans-serif;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.onboarding-main-title .title-en {
+  display: block;
+  font-size: 0.75em;
+  color: var(--text-soft);
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.title-highlight {
+  color: var(--brass);
+  font-style: italic;
+}
+
+.title-sub {
+  color: var(--text-soft);
+  font-size: 0.85em;
+}
+
+.title-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.45em;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.onboarding-desc {
+  font-size: 15px;
+  color: var(--text-soft);
+  line-height: 1.6;
+  max-width: 420px;
+  margin: 0 auto;
+}
+.onboarding-desc .desc-km {
+  display: block;
+  font-family: 'Battambang', sans-serif;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+.onboarding-desc .desc-en {
+  display: block;
+  font-size: 0.9em;
+  opacity: 0.7;
+}
+
+/* Divider */
+.onboarding-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  margin: 28px 0;
+}
+
+/* Settings Section */
+.onboarding-settings {
+  text-align: center;
+}
+
+.settings-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+.settings-title .st-km {
+  display: block;
+  font-family: 'Battambang', sans-serif;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.settings-title .st-en {
+  display: block;
+  font-size: 0.75em;
+  color: var(--text-soft);
+  opacity: 0.7;
+}
+
+.onboarding-section {
+  margin-bottom: 24px;
+}
+
+.onboarding-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+.onboarding-label .st-km {
+  display: block;
+  font-family: 'Battambang', sans-serif;
+}
+.onboarding-label .st-en {
+  display: block;
+  font-size: 0.85em;
+  opacity: 0.7;
+}
+
+.onboarding-options {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.onboarding-option {
+  flex: 1;
+  max-width: 180px;
+  padding: 18px 16px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.onboarding-option:hover {
+  border-color: var(--brass);
+  transform: translateY(-2px);
+}
+.onboarding-option.selected {
+  border-color: var(--brass);
+  background: rgba(201, 169, 110, 0.1);
+  box-shadow: 0 4px 24px var(--brass-glow);
+}
+.onboarding-option .opt-icon {
+  font-size: 28px;
+}
+.onboarding-option .opt-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Continue Button */
+.onboarding-continue {
+  margin-top: 32px;
+}
+
+.btn-onboard {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 48px;
+  border-radius: 100px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  background: var(--brass);
+  color: var(--charcoal);
+  font-family: var(--font-body);
+  transition: all 0.3s ease;
+  opacity: 0.3;
+  pointer-events: none;
+  transform: translateY(0);
+  flex-direction: column;
+  line-height: 1.3;
+}
+.btn-onboard .btn-km {
+  display: block;
+  font-family: 'Battambang', sans-serif;
+  font-weight: 700;
+}
+.btn-onboard .btn-en {
+  display: block;
+  font-size: 0.8em;
+  opacity: 0.75;
+}
+.btn-onboard.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.btn-onboard.active:hover {
+  background: var(--brass-light);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px var(--brass-glow);
+}
+.btn-onboard.active span:last-child {
+  transition: transform 0.3s ease;
+}
+.btn-onboard.active:hover span:last-child {
+  transform: translateX(4px);
+}
+
+/* Light mode adjustments */
+[data-theme="light"] .onboarding-option {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .onboarding-option:hover {
+  border-color: var(--brass);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .onboarding-option.selected {
+  background: rgba(201, 169, 110, 0.08);
+  border-color: var(--brass);
+}
+
+::selection { background: var(--brass); color: var(--charcoal); }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 2px; }
+
+/* ============================================
+    NOISE TEXTURE
+    ============================================ */
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  opacity: 0.018;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat; background-size: 256px 256px;
+}
+
+/* ============================================
+    SECTION DIVIDERS
+    ============================================ */
+.section-divider {
+  position: relative;
+  height: 60px;
+  overflow: hidden;
+}
+.section-divider svg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.section-divider .divider-line {
+  stroke: var(--brass);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  animation: dashMove 2s linear infinite;
+  opacity: 0.3;
+}
+@keyframes dashMove {
+  to { stroke-dashoffset: -16; }
+}
+
+/* ============================================
+    ENHANCED CARD ANIMATIONS
+    ============================================ */
+.card {
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, transparent 0%, var(--brass-glow) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.card:hover::before {
+  opacity: 0.1;
+}
+
+/* ============================================
+    ANIMATED ICONS
+    ============================================ */
+.icon-pulse {
+  animation: iconPulse 2s ease-in-out infinite;
+}
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.icon-spin {
+  animation: iconSpin 8s linear infinite;
+}
+@keyframes iconSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.icon-float {
+  animation: iconFloat 3s ease-in-out infinite;
+}
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ============================================
+    TEXT ANIMATIONS
+    ============================================ */
+.text-shimmer {
+  background: linear-gradient(90deg, var(--text) 0%, var(--brass) 50%, var(--text) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
+
+/* ============================================
+    GRADIENT BORDER
+    ============================================ */
+.scroll-indicator {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+.scroll-indicator span {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.scroll-indicator .scroll-arrow {
+  width: 24px;
+  height: 24px;
+  border-right: 2px solid var(--brass);
+  border-bottom: 2px solid var(--brass);
+  transform: rotate(45deg);
+  opacity: 0.6;
+}
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(10px); }
+}
+
+/* ============================================
+    ANIMATED GRADIENT BORDER
+    ============================================ */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(90deg, var(--brass), var(--burgundy-light), var(--brass-light), var(--brass));
+  background-size: 300% 100%;
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: borderGradient 4s linear infinite;
+}
+.gradient-border:hover::before {
+  opacity: 1;
+}
+@keyframes borderGradient {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+/* ============================================
+   SKIP LINK
+   ============================================ */
+.skip-link {
+  position: fixed; top: -100%; left: 16px; z-index: 10000;
+  padding: 12px 24px; background: var(--brass); color: var(--charcoal);
+  font-weight: 700; font-size: 14px; border-radius: 0 0 8px 8px;
+  text-decoration: none; transition: top 0.3s;
+}
+.skip-link:focus { top: 0; }
+
+/* ============================================
+   PROGRESS
+   ============================================ */
+.progress-track {
+  position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 1000;
+  background: rgba(201, 169, 110, 0.08);
+}
+.progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--brass), var(--brass-light));
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============================================
+   NAV
+   ============================================ */
+.nav-bar {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 500;
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(26, 22, 20, 0.92);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  padding: 6px 16px; border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.5s, transform 0.5s;
+}
+[data-theme="light"] .nav-bar {
+  background: rgba(250, 248, 245, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+.nav-bar.hidden { opacity: 0; transform: translateX(-50%) translateY(16px); pointer-events: none; }
+.nav-btn {
+  width: 40px; height: 40px; border-radius: 50%; border: none;
+  background: transparent; color: var(--text-muted);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: color 0.25s, background 0.25s, transform 0.2s;
+  font-size: 18px;
+}
+.nav-btn:hover { color: var(--text); background: var(--surface-hover); transform: scale(1.05); }
+.nav-btn:disabled { opacity: 0.15; cursor: default; transform: none; }
+.nav-dots { display: flex; gap: 6px; }
+.nav-dot {
+  width: 8px; height: 8px; border-radius: 50%; border: none; padding: 0;
+  background: rgba(255, 255, 255, 0.2); cursor: pointer;
+  transition: background 0.4s, width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-theme="light"] .nav-dot { background: rgba(0, 0, 0, 0.15); }
+.nav-dot.active { background: var(--brass); width: 32px; border-radius: 4px; }
+.nav-dot:hover { background: rgba(255, 255, 255, 0.4); }
+[data-theme="light"] .nav-dot:hover { background: rgba(0, 0, 0, 0.3); }
+
+/* ============================================
+   SECTIONS — SCROLL STORYTELLING
+   ============================================ */
+.section {
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: var(--section-py) clamp(20px, 5vw, 64px);
+  position: relative;
+  overflow: hidden;
+}
+.section-inner {
+  width: 100%; max-width: 1200px; margin: 0 auto;
+  position: relative; z-index: 2;
+}
+
+/* ============================================
+   REVEAL ANIMATIONS (Intersection Observer)
+   ============================================ */
+.reveal {
+  opacity: 0; transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.in-view { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+.reveal-delay-6 { transition-delay: 0.6s; }
+.reveal-delay-7 { transition-delay: 0.7s; }
+.reveal-delay-8 { transition-delay: 0.8s; }
+
+.reveal-left {
+  opacity: 0; transform: translateX(-40px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-left.in-view { opacity: 1; transform: translateX(0); }
+
+.reveal-right {
+  opacity: 0; transform: translateX(40px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-right.in-view { opacity: 1; transform: translateX(0); }
+
+.reveal-scale {
+  opacity: 0; transform: scale(0.92);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-scale.in-view { opacity: 1; transform: scale(1); }
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+.label-tag {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 11px; font-weight: 500; text-transform: uppercase;
+  letter-spacing: 0.18em; color: var(--brass); margin-bottom: 16px;
+  font-family: var(--font-body);
+}
+.label-tag::before {
+  content: ''; width: 28px; height: 1.5px; background: var(--brass);
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 6.5vw, 80px);
+  font-weight: 400; line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 12px;
+  text-wrap: balance;
+}
+.section-title .italic { font-style: italic; color: var(--brass); }
+.section-sub {
+  font-size: clamp(15px, 1.3vw, 19px);
+  color: var(--text-soft);
+  line-height: 1.7;
+  max-width: 640px;
+  font-weight: 400;
+}
+.section-sub strong { color: var(--text); font-weight: 500; }
+
+/* ============================================
+   DECORATIVE LINE
+   ============================================ */
+.accent-line {
+  width: 48px; height: 2.5px; background: var(--brass);
+  margin: 20px 0 24px;
+  border-radius: 2px;
+}
+
+/* ============================================
+   CARD
+   ============================================ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 24px;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.4s, box-shadow 0.4s;
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--brass);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+[data-theme="light"] .card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   GRID HELPERS
+   ============================================ */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+/* ============================================
+    APP SHOWCASE (Side-by-side layout)
+    ============================================ */
+.app-showcase {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+/* ============================================
+    PHONE FRAME
+    ============================================ */
+.phone-frame {
+  position: relative; width: 260px; height: 530px; margin: 0 auto;
+  border-radius: 36px; padding: 8px;
+  background: linear-gradient(145deg, #3A322C, #1F1A16);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+[data-theme="light"] .phone-frame {
+  background: linear-gradient(145deg, #E8E0D8, #D4CCC4);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.08);
+}
+.phone-frame::before {
+  content: ''; position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  width: 100px; height: 22px; background: var(--charcoal);
+  border-radius: 0 0 14px 14px; z-index: 2;
+}
+[data-theme="light"] .phone-frame::before {
+  background: #D4CCC4;
+}
+.phone-frame::before { display: none !important; }
+.phone-notch { display: none !important; }
+.phone-screen { width: 100%; height: 100%; border-radius: 28px; overflow: hidden; background: #000; position: relative; }
+[data-theme="light"] .phone-screen { background: #F0EBE6; }
+.phone-screen video, .phone-screen img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+#hero {
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--charcoal) 0%, #241A18 40%, #2D1E20 70%, var(--charcoal) 100%);
+  text-align: center;
+  position: relative;
+}
+[data-theme="light"] #hero {
+  background: linear-gradient(160deg, #F0EBE6 0%, #E8DDD4 40%, #E0D4C8 70%, #F0EBE6 100%);
+}
+#hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(201, 169, 110, 0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+#hero::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 200px;
+  background: linear-gradient(to top, var(--bg), transparent);
+  pointer-events: none; z-index: 1;
+}
+[data-theme="light"] #hero::after {
+  background: linear-gradient(to top, #FAF8F5, transparent);
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 18px; border: 1px solid var(--border);
+  border-radius: 100px; font-size: 11px; color: var(--text-soft);
+  font-weight: 500; letter-spacing: 0.06em; margin-bottom: 28px;
+}
+.hero-badge span { color: var(--brass); }
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(44px, 8vw, 110px);
+  font-weight: 400; line-height: 1.0;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.hero-title .accent { color: var(--brass); font-style: italic; }
+.hero-line {
+  width: 80px; height: 2.5px; background: var(--brass);
+  margin: 24px auto; border-radius: 2px;
+}
+.hero-sub {
+  font-size: clamp(16px, 1.4vw, 20px);
+  color: var(--text-soft);
+  max-width: 520px; margin: 0 auto 32px;
+  line-height: 1.6;
+}
+.hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 32px; border-radius: 100px;
+  font-size: 14px; font-weight: 600; text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  cursor: pointer; border: none; font-family: var(--font-body);
+}
+.btn-primary {
+  background: var(--brass); color: var(--charcoal);
+  box-shadow: 0 4px 24px var(--brass-glow);
+}
+.btn-primary:hover {
+  background: var(--brass-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px var(--brass-glow);
+}
+.btn-outline {
+  background: transparent; color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+.btn-outline:hover {
+  border-color: var(--brass); color: var(--brass);
+  transform: translateY(-2px);
+}
+
+.hero-floats {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  overflow: hidden;
+}
+.hero-float {
+  position: absolute; padding: 10px 16px;
+  background: rgba(26, 22, 20, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 12px; color: var(--text-soft);
+  white-space: nowrap;
+  animation: drift 4s ease-in-out infinite;
+}
+[data-theme="light"] .hero-float {
+  background: rgba(250, 248, 245, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.hero-float:nth-child(1) { top: 18%; right: 8%; animation-delay: 0s; }
+.hero-float:nth-child(2) { bottom: 28%; left: 6%; animation-delay: 1.5s; }
+.hero-float:nth-child(3) { top: 55%; left: 12%; animation-delay: 0.8s; }
+.hero-float:nth-child(4) { bottom: 35%; right: 10%; animation-delay: 2.2s; }
+@keyframes drift {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(0.5deg); }
+}
+
+/* ============================================
+    SECTION: SECURITY — Shield + Checklist
+    ============================================ */
+#security {
+  background: linear-gradient(170deg, #1F1816 0%, var(--charcoal) 100%);
+}
+[data-theme="light"] #security {
+  background: linear-gradient(170deg, #EDE8E2 0%, #F5F2ED 100%);
+}
+
+.security-grid-new {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 32px;
+}
+
+/* Shield Card */
+.sec-card-shield {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 32px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--burgundy-deep), var(--burgundy));
+  border: 1px solid rgba(201, 169, 110, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+.sec-card-shield::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(201, 169, 110, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.sec-shield-icon {
+  font-size: 72px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+.sec-shield-text {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--cream);
+  line-height: 1.5;
+  position: relative;
+  z-index: 1;
+}
+.sec-shield-text .lang-km {
+  display: block;
+  font-family: 'Battambang', sans-serif;
+  font-size: 0.85em;
+  margin-top: 8px;
+  opacity: 0.8;
+}
+
+/* Checklist */
+.sec-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.sec-check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.sec-check-item:hover {
+  transform: translateX(4px);
+  border-color: var(--brass);
+}
+.sec-check-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(201, 169, 110, 0.1);
+  border: 1px solid rgba(201, 169, 110, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--brass);
+  flex-shrink: 0;
+  font-weight: 700;
+}
+.sec-check-text {
+  font-size: 14px;
+  color: var(--text-soft);
+  line-height: 1.5;
+}
+.sec-check-text .lang-km {
+  display: block;
+  font-family: 'Battambang', sans-serif;
+  margin-top: 4px;
+  opacity: 0.8;
+}
+
+/* Light mode */
+[data-theme="light"] .sec-card-shield {
+  background: linear-gradient(135deg, #8A3A4E, #6B2A3A);
+}
+[data-theme="light"] .sec-check-item {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .sec-check-item:hover {
+  border-color: var(--brass);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .security-grid-new {
+    grid-template-columns: 1fr;
+  }
+  .sec-card-shield {
+    padding: 36px 24px;
+  }
+  .sec-shield-icon {
+    font-size: 56px;
+  }
+}
+
+/* ============================================
+    SECTION: ADVANTAGES — Numbered Cards
+    ============================================ */
+#advantages {
+  background: linear-gradient(165deg, var(--charcoal) 0%, #1F1816 100%);
+}
+[data-theme="light"] #advantages {
+  background: linear-gradient(165deg, #F5F2ED 0%, #EDE8E2 100%);
+}
+
+.adv-bento {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.adv-card-new {
+  position: relative;
+  padding: 28px 24px 24px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.35s ease;
+}
+.adv-card-new:hover {
+  transform: translateY(-4px);
+  border-color: var(--brass);
+}
+
+.adv-number {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  opacity: 0.4;
+}
+
+.adv-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  background: rgba(201, 169, 110, 0.1);
+  border: 1px solid rgba(201, 169, 110, 0.15);
+  margin-bottom: 16px;
+  transition: transform 0.3s ease;
+}
+.adv-card-new:hover .adv-icon-wrap {
+  transform: scale(1.1);
+}
+
+.adv-title {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.adv-desc {
+  font-size: 14px;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+.adv-desc .lang-km {
+  display: block;
+  font-family: 'Battambang', sans-serif;
+  margin-top: 6px;
+  opacity: 0.8;
+}
+
+/* Light mode */
+[data-theme="light"] .adv-card-new {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .adv-card-new:hover {
+  border-color: var(--brass);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .adv-bento {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 768px) {
+  .adv-bento {
+    grid-template-columns: 1fr;
+  }
+}
+#features {
+  background: linear-gradient(165deg, #1F1816 0%, var(--charcoal) 100%);
+}
+[data-theme="light"] #features {
+  background: linear-gradient(165deg, #EDE8E2 0%, #F5F2ED 100%);
+}
+
+.features-bento {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.feat-card {
+  position: relative;
+  padding: 28px 24px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.35s ease,
+              box-shadow 0.35s ease;
+}
+.feat-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--brass);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Large card (spans 2 columns) */
+.feat-card-large {
+  grid-column: span 2;
+  flex-direction: row;
+  align-items: center;
+  padding: 32px 28px;
+}
+
+/* Wide card (spans full width) */
+.feat-card-wide {
+  grid-column: span 3;
+  flex-direction: row;
+  align-items: center;
+  padding: 32px 28px;
+}
+
+.feat-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: rgba(201, 169, 110, 0.1);
+  border: 1px solid rgba(201, 169, 110, 0.15);
+  flex-shrink: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.feat-card:hover .feat-icon-wrap {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 4px 16px var(--brass-glow);
+}
+
+.feat-content {
+  flex: 1;
+}
+
+.feat-title {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.feat-desc {
+  font-size: 14px;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+.feat-desc .lang-km {
+  display: block;
+  font-family: 'Battambang', sans-serif;
+  margin-top: 6px;
+  opacity: 0.8;
+}
+
+/* Background decorative icon */
+.feat-bg-icon {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  font-size: 120px;
+  opacity: 0.03;
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* Light mode */
+[data-theme="light"] .feat-card {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .feat-card:hover {
+  border-color: var(--brass);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .feat-icon-wrap {
+  background: rgba(201, 169, 110, 0.08);
+  border-color: rgba(201, 169, 110, 0.12);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .features-bento {
+    grid-template-columns: 1fr;
+  }
+  .feat-card-large,
+  .feat-card-wide {
+    grid-column: span 1;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .feat-bg-icon {
+    font-size: 80px;
+  }
+}
+[data-theme="light"] #architecture {
+  background: linear-gradient(170deg, #F5F2ED 0%, #EDE8E2 40%, #E8E2DC 100%);
+}
+
+/* Flow Timeline */
+.flow-timeline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  margin-top: 48px;
+  padding: 0 20px;
+}
+
+.flow-stage {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.flow-stage-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--brass);
+  color: var(--charcoal);
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: 0 0 20px var(--brass-glow);
+}
+
+.flow-card {
+  width: 220px;
+  padding: 24px 20px;
+  border-radius: 16px;
+  text-align: center;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.flow-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--brass);
+}
+
+.flow-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.flow-title {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.flow-desc {
+  font-size: 13px;
+  color: var(--text-soft);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.flow-detail {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.flow-tags {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.flow-tag {
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 500;
+  background: rgba(201, 169, 110, 0.1);
+  color: var(--brass-light);
+  border: 1px solid rgba(201, 169, 110, 0.15);
+}
+
+/* Flow Connector */
+.flow-connector {
+  flex: 0 0 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 40px;
+  position: relative;
+}
+
+.flow-connector-line {
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--brass), transparent);
+  opacity: 0.3;
+}
+
+.flow-connector-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brass);
+  left: 50%;
+  transform: translateX(-50%);
+  animation: connectorDot 2s ease-in-out infinite;
+}
+
+@keyframes connectorDot {
+  0%, 100% { opacity: 0.2; transform: translateX(-50%) scale(0.8); }
+  50% { opacity: 0.8; transform: translateX(-50%) scale(1.2); }
+}
+
+/* Card Variants */
+.flow-card-customer {
+  border-top: 3px solid var(--brass);
+}
+.flow-card-customer .flow-title {
+  color: var(--brass-light);
+}
+
+.flow-card-apps {
+  border-top: 3px solid #7A9A7A;
+}
+.flow-card-apps .flow-title {
+  color: #9ABA7A;
+}
+
+.flow-card-db {
+  border-top: 3px solid var(--burgundy-light);
+}
+.flow-card-db .flow-title {
+  color: var(--burgundy-light);
+}
+
+.flow-card-bots {
+  border-top: 3px solid #5B9BD5;
+}
+.flow-card-bots .flow-title {
+  color: #7AB5E5;
+}
+
+/* Summary Stats */
+.arch-summary {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.arch-stat {
+  text-align: center;
+}
+
+.arch-stat-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--brass);
+  margin-bottom: 4px;
+}
+
+.arch-stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .flow-timeline {
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+  .flow-connector {
+    display: none;
+  }
+  .flow-card {
+    width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .flow-timeline {
+    flex-direction: column;
+    align-items: center;
+  }
+  .flow-card {
+    width: 100%;
+    max-width: 320px;
+  }
+  .flow-connector {
+    display: flex;
+    padding-top: 0;
+    height: 40px;
+  }
+  .flow-connector-line {
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--brass), transparent);
+  }
+  .arch-summary {
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+}
+
+/* Light mode adjustments */
+[data-theme="light"] .onboarding-option {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .onboarding-option:hover {
+  border-color: var(--brass);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .onboarding-option.selected {
+  background: rgba(201, 169, 110, 0.08);
+  border-color: var(--brass);
+}
+[data-theme="light"] .onboarding-badge {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+#cta::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(201, 169, 110, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.cta-title {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 400; line-height: 1.08;
+  margin-bottom: 16px;
+}
+.cta-sub {
+  font-size: 16px; color: var(--text-soft);
+  max-width: 480px; margin: 0 auto 32px;
+}
+.cta-note {
+  margin-top: 24px;
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.cta-note strong {
+  color: var(--brass);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 0.1em;
+}
+.cta-note .lang-km {
+  display: block;
+  font-family: 'Battambang', sans-serif;
+  margin-top: 4px;
+}
+
+/* ============================================
+    SECTION: STATS
+    ============================================ */
+#stats {
+  min-height: auto;
+  background: linear-gradient(170deg, var(--charcoal), #1F1816);
+  padding: 80px clamp(20px, 5vw, 64px);
+}
+[data-theme="light"] #stats {
+  background: linear-gradient(170deg, #F5F2ED, #EDE8E2);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.stat-card {
+  text-align: center;
+  padding: 32px 16px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.stat-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--brass);
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 64px);
+  color: var(--brass);
+  line-height: 1;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 12px;
+  font-weight: 500;
+}
+.stat-label .lang-km {
+  display: block;
+  font-family: 'Battambang', sans-serif;
+  font-size: 0.9em;
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+/* Light mode */
+[data-theme="light"] .stat-card {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .stat-card:hover {
+  border-color: var(--brass);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================
+    RESPONSIVE
+    ============================================ */
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .app-showcase { grid-template-columns: 1fr; gap: 32px; }
+  .hero-float { display: none; }
+}
+
+@media (max-width: 768px) {
+  .section { padding: 60px 16px; align-items: flex-start; min-height: auto; }
+  .grid-2 { grid-template-columns: 1fr; gap: 24px; }
+  .grid-3 { grid-template-columns: 1fr; gap: 16px; }
+  .nav-bar { padding: 4px 12px; gap: 8px; bottom: 16px; }
+  .nav-btn { width: 36px; height: 36px; font-size: 16px; }
+  .nav-dot { width: 6px; height: 6px; }
+  .nav-dot.active { width: 24px; border-radius: 3px; }
+  .phone-frame { width: 200px; height: 410px; border-radius: 28px; padding: 6px; }
+  .phone-frame::before { width: 76px; height: 18px; top: 10px; border-radius: 0 0 10px 10px; }
+  .phone-notch { width: 12px; height: 12px; top: 13px; }
+  .phone-screen { border-radius: 22px; }
+  .hero-title { font-size: clamp(36px, 10vw, 52px); }
+  .section-title { font-size: clamp(28px, 8vw, 40px); }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .app-showcase { gap: 24px; }
+  .label-tag { font-size: 10px; }
+  .section-sub { font-size: 14px; }
+}
+
+@media (max-width: 480px) {
+  .section { padding: 48px 12px; }
+  .phone-frame { width: 160px; height: 330px; border-radius: 20px; padding: 4px; }
+  .phone-frame::before { width: 56px; height: 14px; top: 8px; }
+  .phone-notch { width: 10px; height: 10px; top: 10px; }
+  .phone-screen { border-radius: 16px; }
+  .nav-bar { padding: 3px 8px; gap: 4px; border-radius: 28px; }
+  .nav-btn { width: 30px; height: 30px; font-size: 14px; }
+  .nav-dot { width: 5px; height: 5px; }
+  .nav-dot.active { width: 16px; }
+  .hero-title { font-size: clamp(30px, 12vw, 40px); }
+  .section-title { font-size: clamp(24px, 9vw, 32px); }
+  .hero-sub { font-size: 14px; }
+  .btn { padding: 12px 24px; font-size: 13px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-value { font-size: 32px; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions .btn { justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal-left, .reveal-right, .reveal-scale { opacity: 1; transform: none; transition: none; }
+  .hero-float { animation: none; }
+  .card:hover, .feature-card:hover, .adv-card:hover, .arch-node:hover { transform: none; }
+  .onboarding-orb { animation: none; }
+}
+
+@media (max-width: 480px) {
+  .onboarding-inner { padding: 24px 16px; }
+  .onboarding-main-title { font-size: 24px; }
+  .onboarding-desc { font-size: 14px; }
+  .onboarding-option { padding: 14px 12px; }
+  .onboarding-option .opt-icon { font-size: 24px; }
+  .onboarding-option .opt-label { font-size: 12px; }
+  .btn-onboard { padding: 14px 32px; font-size: 14px; }
+}
+</style>
+<script>
+(function(){
+  var saved = localStorage.getItem('tom-theme');
+  var pref = window.matchMedia('(prefers-color-scheme: dark)');
+  var theme = saved || 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+
+  var savedLang = localStorage.getItem('tom-lang') || 'en';
+  document.documentElement.setAttribute('data-lang', savedLang);
+
+  var hasVisited = localStorage.getItem('tom-visited');
+  if (hasVisited) {
+    var ob = document.getElementById('onboarding');
+    if (ob) ob.classList.add('hidden');
+  }
+})();
+</script>
+</head>
+<body>
+<!-- ONBOARDING OVERLAY -->
+<div class="onboarding" id="onboarding">
+  <div class="onboarding-bg" aria-hidden="true">
+    <div class="onboarding-orb onboarding-orb-1"></div>
+    <div class="onboarding-orb onboarding-orb-2"></div>
+    <div class="onboarding-orb onboarding-orb-3"></div>
+  </div>
+  <div class="onboarding-inner">
+    <!-- Welcome Section -->
+    <div class="onboarding-welcome">
+      <h1 class="onboarding-main-title">
+        <span class="title-km">សូមស្វាគមន៍មកកាន់<br><span class="title-highlight">Telegram Order Management</span><br><span class="title-label">Presentation</span></span>
+        <span class="title-en">Welcome to<br><span class="title-highlight">Telegram Order Management</span><br><span class="title-label">Presentation</span></span>
+      </h1>
+      <p class="onboarding-desc">
+        <span class="desc-km">ស្វែងយល់ពី restaurant platform ពេញលេញរបស់យើង — app ចំនួន ៣ ដែលភ្ជាប់គ្នា ដំណើរការដោយ Telegram និង Supabase ក្នុងពេលជាក់ស្តែង (real time)។</span>
+        <span class="desc-en">Explore our complete restaurant platform — three unified apps powered by Telegram and Supabase in real time.</span>
+      </p>
+    </div>
+
+    <!-- Divider -->
+    <div class="onboarding-divider"></div>
+
+    <!-- Settings Section -->
+    <div class="onboarding-settings">
+      <h3 class="settings-title">
+        <span class="st-km">ជ្រើសរើសការកំណត់របស់អ្នក</span>
+        <span class="st-en">Choose Your Preferences</span>
+      </h3>
+
+      <!-- Theme Selection -->
+      <div class="onboarding-section">
+        <div class="onboarding-label">
+          <span class="st-km">រូបរាង</span>
+          <span class="st-en">Appearance</span>
+        </div>
+        <div class="onboarding-options" id="themeOptions">
+          <button class="onboarding-option" data-theme-choice="light">
+            <span class="opt-icon">&#9728;&#65039;</span>
+            <span class="opt-label">Light Mode</span>
+          </button>
+          <button class="onboarding-option" data-theme-choice="dark">
+            <span class="opt-icon">&#127769;</span>
+            <span class="opt-label">Dark Mode</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Language Selection -->
+      <div class="onboarding-section">
+        <div class="onboarding-label">
+          <span class="st-km">ភាសា</span>
+          <span class="st-en">Language</span>
+        </div>
+        <div class="onboarding-options" id="langOptions">
+          <button class="onboarding-option" data-lang-choice="en">
+            <span class="opt-icon">🇬🇧</span>
+            <span class="opt-label">English</span>
+          </button>
+          <button class="onboarding-option" data-lang-choice="km">
+            <span class="opt-icon">🇰🇭</span>
+            <span class="opt-label">ភាសាខ្មែរ</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Continue Button -->
+      <div class="onboarding-continue">
+        <button class="btn-onboard" id="onboardContinue">
+          <span class="btn-km">ចាប់ផ្តើម Presentation</span>
+          <span class="btn-en">Start Presentation</span>
+          <span>&#8594;</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+<nav class="nav-bar" id="navBar" role="navigation" aria-label="Slide navigation">
+  <button class="nav-btn" id="navPrev" aria-label="Previous section">&#10094;</button>
+  <div class="nav-dots" id="navDots"></div>
+  <button class="nav-btn" id="navNext" aria-label="Next section">&#10095;</button>
+  <button class="nav-btn" id="langToggle" aria-label="Toggle language" style="font-size:12px;font-weight:700;width:auto;padding:0 12px;font-family:var(--font-body);">EN</button>
+  <button class="nav-btn" id="themeToggle" aria-label="Toggle theme">
+    <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </button>
+</nav>
+
+<!-- ============================================
+     HERO
+     ============================================ -->
+<section class="section" id="hero" data-index="0">
+    <div class="hero-floats" aria-hidden="true">
+    <div class="hero-float"><span class="lang-en">&#9889; Real-time sync</span><span class="lang-km">&#9889; Real-time sync</span></div>
+    <div class="hero-float"><span class="lang-en">&#128274; End-to-end encrypted</span><span class="lang-km">&#128274; End-to-end encrypted</span></div>
+    <div class="hero-float"><span class="lang-en">&#128172; Telegram-native</span><span class="lang-km">&#128172; Telegram-native</span></div>
+    <div class="hero-float"><span class="lang-en">&#128200; 11 database tables</span><span class="lang-km">&#128200; 11 database tables</span></div>
+  </div>
+  <div class="section-inner" style="text-align:center;">
+    <div class="hero-badge reveal"><span class="lang-en">&#127860; <span>Complete Restaurant Platform</span></span><span class="lang-km">&#127860; <span>Platform ភោជនីយដ្ឋានពេញលេញ</span></span></div>
+    <h1 class="hero-title reveal reveal-delay-1"><span class="lang-en">All the Order <span class="accent">Connected</span></span><span class="lang-km">ភ្ជាប់រាល់ការកុម្ម៉ង់<span class="accent">ទាំងអស់</span></span></h1>
+    <div class="hero-line reveal reveal-delay-2"></div>
+    <p class="hero-sub reveal reveal-delay-3">
+      <span class="lang-en">Three unified apps — Admin, Dine-In &amp; Delivery —<br>powered by Telegram and Supabase in real time.</span>
+      <span class="lang-km">App ចំនួន ៣ ដែលភ្ជាប់គ្នា — Admin, Dine-In &amp; Delivery —<br>ដំណើរការដោយ Telegram និង Supabase ក្នុងពេលជាក់ស្តែង (real time)។</span>
+    </p>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER -->
+<div class="section-divider" aria-hidden="true">
+  <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
+    <line class="divider-line" x1="0" y1="30" x2="1200" y2="30"/>
+    <circle cx="600" cy="30" r="4" fill="var(--brass)" opacity="0.5">
+      <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.5;0.8;0.5" dur="2s" repeatCount="indefinite"/>
+    </circle>
+  </svg>
+</div>
+
+<!-- ============================================
+     SECTION 1: HOW IT ALL CONNECTS
+     ============================================ -->
+<section class="section" id="architecture" data-index="1">
+  <div class="section-inner">
+    <span class="label-tag reveal"><span class="lang-en">Architecture</span><span class="lang-km">Architecture</span></span>
+    <h2 class="section-title reveal reveal-delay-1"><span class="lang-en">How It <span class="italic">All Connects</span></span><span class="lang-km">របៀបដែល <span class="italic">វាភ្ជាប់គ្នា</span></span></h2>
+    <p class="section-sub reveal reveal-delay-2"><span class="lang-en">From customer order to bot notification — every step happens in real time.</span><span class="lang-km">ពីការកម្ម៉ង់របស់អតិថិជន រហូតដល់ការជូនដំណឹងរបស់ bot — គ្រប់ជំហានទាំងអស់កើតឡើងក្នុងពេលជាក់ស្តែង (real time)។</span></p>
+    <div class="accent-line reveal reveal-delay-3"></div>
+
+    <!-- Flow Timeline -->
+    <div class="flow-timeline reveal reveal-delay-4">
+      <!-- Stage 1: Customer -->
+      <div class="flow-stage">
+        <div class="flow-stage-number">1</div>
+        <div class="flow-card flow-card-customer">
+          <div class="flow-icon">&#128100;</div>
+          <div class="flow-title">Customer</div>
+          <div class="flow-desc"><span class="lang-en">Opens Telegram mini app or scans QR code at table</span><span class="lang-km">បើក Telegram mini app ឬ scan QR code នៅតុ</span></div>
+          <div class="flow-detail"><span class="lang-en">Instant access, no download needed</span><span class="lang-km">ចូលប្រើភ្លាមៗ មិនចាំបាច់ download</span></div>
+        </div>
+      </div>
+
+      <!-- Connector -->
+      <div class="flow-connector">
+        <div class="flow-connector-line"></div>
+        <div class="flow-connector-dot"></div>
+      </div>
+
+      <!-- Stage 2: Apps -->
+      <div class="flow-stage">
+        <div class="flow-stage-number">2</div>
+        <div class="flow-card flow-card-apps">
+          <div class="flow-icon">&#128241;</div>
+          <div class="flow-title">Apps</div>
+          <div class="flow-desc"><span class="lang-en">Dine-In, Delivery &amp; Admin process the order</span><span class="lang-km">Dine-In, Delivery &amp; Admin ដំណើរការការកម្ម៉ង់</span></div>
+          <div class="flow-tags">
+            <span class="flow-tag">Dine-In</span>
+            <span class="flow-tag">Delivery</span>
+            <span class="flow-tag">Admin</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connector -->
+      <div class="flow-connector">
+        <div class="flow-connector-line"></div>
+        <div class="flow-connector-dot"></div>
+      </div>
+
+      <!-- Stage 3: Database -->
+      <div class="flow-stage">
+        <div class="flow-stage-number">3</div>
+        <div class="flow-card flow-card-db">
+          <div class="flow-icon">&#128451;</div>
+          <div class="flow-title">Supabase</div>
+          <div class="flow-desc"><span class="lang-en">PostgreSQL with real-time subscriptions syncs everything</span><span class="lang-km">PostgreSQL ជាមួយ real-time subscriptions ធ្វើ sync អ្វីៗទាំងអស់</span></div>
+          <div class="flow-detail"><span class="lang-en">11 tables · Row-level security</span><span class="lang-km">11 tables · Row-level security</span></div>
+        </div>
+      </div>
+
+      <!-- Connector -->
+      <div class="flow-connector">
+        <div class="flow-connector-line"></div>
+        <div class="flow-connector-dot"></div>
+      </div>
+
+      <!-- Stage 4: Bots -->
+      <div class="flow-stage">
+        <div class="flow-stage-number">4</div>
+        <div class="flow-card flow-card-bots">
+          <div class="flow-icon">&#129302;</div>
+          <div class="flow-title">Bots</div>
+          <div class="flow-desc"><span class="lang-en">Staff alerts, customer receipts &amp; driver dispatch</span><span class="lang-km">Staff alerts, បង្កាន់ដៃអតិថិជន &amp; driver dispatch</span></div>
+          <div class="flow-tags">
+            <span class="flow-tag">Staff</span>
+            <span class="flow-tag">Customer</span>
+            <span class="flow-tag">Driver</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="arch-summary reveal reveal-delay-5">
+      <div class="arch-stat">
+        <div class="arch-stat-value">&lt;1s</div>
+        <div class="arch-stat-label"><span class="lang-en">Order to Kitchen</span><span class="lang-km">ការកម្ម៉ង់ទៅ Kitchen</span></div>
+      </div>
+      <div class="arch-stat">
+        <div class="arch-stat-value">11</div>
+        <div class="arch-stat-label"><span class="lang-en">Database Tables</span><span class="lang-km">Database Tables</span></div>
+      </div>
+      <div class="arch-stat">
+        <div class="arch-stat-value">3</div>
+        <div class="arch-stat-label"><span class="lang-en">Connected Apps</span><span class="lang-km">Connected Apps</span></div>
+      </div>
+      <div class="arch-stat">
+        <div class="arch-stat-value">24/7</div>
+        <div class="arch-stat-label"><span class="lang-en">Real-time Sync</span><span class="lang-km">Real-time Sync</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION DIVIDER -->
+<div class="section-divider" aria-hidden="true">
+  <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
+    <line class="divider-line" x1="0" y1="30" x2="1200" y2="30"/>
+    <circle cx="600" cy="30" r="4" fill="var(--brass)" opacity="0.5">
+      <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.5;0.8;0.5" dur="2s" repeatCount="indefinite"/>
+    </circle>
+  </svg>
+</div>
+
+<!-- ============================================
+     SECTION 2: DINE-IN APP
+     ============================================ -->
+<section class="section" id="dinein" data-index="2">
+  <div class="section-inner">
+    <div class="app-showcase">
+      <div class="app-visual">
+        <div class="phone-frame reveal-left">
+          <div class="phone-screen">
+            <video src="images/dinein-demo.mp4" autoplay muted loop playsinline preload="auto"></video>
+          </div>
+        </div>
+      </div>
+      <div class="app-info">
+        <span class="label-tag reveal"><span class="lang-en">Dine-In App</span><span class="lang-km">Dine-In App</span></span>
+        <h2 class="section-title reveal reveal-delay-1"><span class="lang-en">Scan, Order, <span class="italic">Relax</span></span><span class="lang-km">Scan, Order, <span class="italic">អង្គុយសម្រាក</span></span></h2>
+        <p class="section-sub reveal reveal-delay-2"><span class="lang-en">Customers order from their phone. Scan a QR code or open the Telegram mini app. Browse the menu, add items, submit. Kitchen gets it instantly. Receipt via Telegram. No staff needed.</span><span class="lang-km">អតិថិជនកម្ម៉ង់ពីទូរស័ព្ទ។ Scan QR code ឬបើក Telegram mini app។ រើសមុខម្ហូប បន្ថែម ហើយ submit។ Kitchen ទទួលបានភ្លាមៗ។ បង្កាន់ដៃតាម Telegram។ មិនត្រូវការ staff ទេ។</span></p>
+        <div class="accent-line reveal reveal-delay-3"></div>
+        <div class="app-features reveal reveal-delay-4">
+          <div class="app-feature"><span class="lang-en">Browse full menu with photos &amp; descriptions</span><span class="lang-km">មើលម៉ឺនុយពេញលេញជាមួយរូបភាព &amp; ការពិពណ៌នា</span></div>
+          <div class="app-feature"><span class="lang-en">Daily access code system for table verification</span><span class="lang-km">Daily access code system សម្រាប់ផ្ទៀងផ្ទាត់តុ</span></div>
+          <div class="app-feature"><span class="lang-en">Real-time order status &amp; push notifications</span><span class="lang-km">Real-time order status &amp; push notifications</span></div>
+          <div class="app-feature"><span class="lang-en">Digital receipt delivered to Telegram chat</span><span class="lang-km">Digital receipt ផ្ញើទៅ Telegram chat</span></div>
+          <div class="app-feature"><span class="lang-en">Supports multiple restaurants per instance</span><span class="lang-km">គាំទ្រភោជនីយដ្ឋានច្រើនក្នុង instance មួយ</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 3: DELIVERY APP
+     ============================================ -->
+<section class="section" id="delivery" data-index="3">
+  <div class="section-inner">
+    <div class="app-showcase">
+      <div class="app-info">
+        <span class="label-tag reveal"><span class="lang-en">Delivery App</span><span class="lang-km">Delivery App</span></span>
+        <h2 class="section-title reveal reveal-delay-1"><span class="lang-en">From Kitchen <span class="italic">to Doorstep</span></span><span class="lang-km">ពី Kitchen <span class="italic">ទៅផ្ទះអ្នក</span></span></h2>
+        <p class="section-sub reveal reveal-delay-2"><span class="lang-en">Customers order delivery with live GPS tracking. Drivers receive assignments via Telegram webhook. Real-time status from prep to drop-off.</span><span class="lang-km">អតិថិជនកម្ម៉ង់ delivery ជាមួយ live GPS tracking។ Drivers ទទួលការចាត់តាំងតាម Telegram webhook។ Real-time status ពីការរៀបចំរហូតដល់ដឹកជញ្ជូន។</span></p>
+        <div class="accent-line reveal reveal-delay-3"></div>
+        <div class="app-features reveal reveal-delay-4">
+          <div class="app-feature"><span class="lang-en">Live GPS location sharing with driver</span><span class="lang-km">Live GPS location sharing ជាមួយ driver</span></div>
+          <div class="app-feature"><span class="lang-en">Choose delivery or pickup at checkout</span><span class="lang-km">ជ្រើសរើស delivery ឬ pickup នៅ checkout</span></div>
+          <div class="app-feature"><span class="lang-en">Driver dispatch via Telegram bot commands</span><span class="lang-km">Driver dispatch តាម Telegram bot commands</span></div>
+          <div class="app-feature"><span class="lang-en">Real-time order progress notifications</span><span class="lang-km">Real-time order progress notifications</span></div>
+          <div class="app-feature"><span class="lang-en">Multi-driver support with automated assignment</span><span class="lang-km">Multi-driver support ជាមួយ automated assignment</span></div>
+        </div>
+      </div>
+      <div class="app-visual">
+        <div class="phone-frame reveal-right">
+          <div class="phone-screen">
+            <video src="images/demo.mp4" autoplay muted loop playsinline preload="auto"></video>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 4: ADMIN APP
+     ============================================ -->
+<section class="section" id="admin" data-index="4">
+  <div class="section-inner">
+    <span class="label-tag reveal"><span class="lang-en">Admin App</span><span class="lang-km">Admin App</span></span>
+    <h2 class="section-title reveal reveal-delay-1"><span class="lang-en">Full Control, <span class="italic">One Dashboard</span></span><span class="lang-km">គ្រប់គ្រងពេញលេញ <span class="italic">ក្នុង Dashboard តែមួយ</span></span></h2>
+    <p class="section-sub reveal reveal-delay-2"><span class="lang-en">A powerful admin panel with 13 management tools. Kanban order board, menu editor, stock control, reports, customer management, rider dispatch &mdash; everything in one place.</span><span class="lang-km">Admin panel ដ៏មានឥទ្ធិពលជាមួយ 13 management tools។ Kanban order board, menu editor, stock control, reports, customer management, rider dispatch &mdash; អ្វីៗទាំងអស់នៅកន្លែងតែមួយ។</span></p>
+    <div class="accent-line reveal reveal-delay-3"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px;" class="reveal reveal-delay-4">
+      <div class="card" style="padding:16px;text-align:center;"><div style="font-size:28px;margin-bottom:6px;">&#9776;</div><div style="font-weight:600;font-size:14px;"><span class="lang-en">Kanban Orders</span><span class="lang-km">Kanban Orders</span></div></div>
+      <div class="card" style="padding:16px;text-align:center;"><div style="font-size:28px;margin-bottom:6px;">&#128220;</div><div style="font-weight:600;font-size:14px;"><span class="lang-en">Reports &amp; Analytics</span><span class="lang-km">Reports &amp; Analytics</span></div></div>
+      <div class="card" style="padding:16px;text-align:center;"><div style="font-size:28px;margin-bottom:6px;">&#128230;</div><div style="font-weight:600;font-size:14px;"><span class="lang-en">Stock Management</span><span class="lang-km">Stock Management</span></div></div>
+      <div class="card" style="padding:16px;text-align:center;"><div style="font-size:28px;margin-bottom:6px;">&#128100;</div><div style="font-weight:600;font-size:14px;"><span class="lang-en">Customer Profiles</span><span class="lang-km">Customer Profiles</span></div></div>
+      <div class="card" style="padding:16px;text-align:center;"><div style="font-size:28px;margin-bottom:6px;">&#128200;</div><div style="font-weight:600;font-size:14px;"><span class="lang-en">Menu Builder</span><span class="lang-km">Menu Builder</span></div></div>
+      <div class="card" style="padding:16px;text-align:center;"><div style="font-size:28px;margin-bottom:6px;">&#128663;</div><div style="font-weight:600;font-size:14px;"><span class="lang-en">Rider Dispatch</span><span class="lang-km">Rider Dispatch</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 5: STATS
+     ============================================ -->
+<section id="stats" data-index="5">
+  <div class="section-inner">
+    <div class="stats-grid">
+      <div class="stat-card reveal">
+        <div class="stat-value" data-count="11">0</div>
+        <div class="stat-label">
+          <span class="lang-en">Database Tables</span>
+          <span class="lang-km">Database Tables</span>
+        </div>
+      </div>
+      <div class="stat-card reveal reveal-delay-1">
+        <div class="stat-value" data-count="3">0</div>
+        <div class="stat-label">
+          <span class="lang-en">Connected Apps</span>
+          <span class="lang-km">Connected Apps</span>
+        </div>
+      </div>
+      <div class="stat-card reveal reveal-delay-2">
+        <div class="stat-value" data-count="13">0</div>
+        <div class="stat-label">
+          <span class="lang-en">Admin Modules</span>
+          <span class="lang-km">Admin Modules</span>
+        </div>
+      </div>
+      <div class="stat-card reveal reveal-delay-3">
+        <div class="stat-value"><span data-count="24">0</span><span style="font-size:0.5em;">/7</span></div>
+        <div class="stat-label">
+          <span class="lang-en">Real-time Operations</span>
+          <span class="lang-km">Real-time Operations</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 6: FEATURES & BENEFITS
+     ============================================ -->
+<section class="section" id="features" data-index="6">
+  <div class="section-inner">
+    <span class="label-tag reveal"><span class="lang-en">Features</span><span class="lang-km">Features</span></span>
+    <h2 class="section-title reveal reveal-delay-1"><span class="lang-en">Built for <span class="italic">Restaurants</span></span><span class="lang-km">បង្កើតសម្រាប់ <span class="italic">ភោជនីយដ្ឋាន</span></span></h2>
+    <p class="section-sub reveal reveal-delay-2"><span class="lang-en">Every feature designed to streamline operations, reduce costs, and create a seamless guest experience.</span><span class="lang-km">រាល់ feature ទាំងអស់រចនាឡើងដើម្បីសម្រួលដំណើរការ កាត់បន្ថយថ្លៃដើម និងបង្កើតបទពិសោធន៍ល្អសម្រាប់ភ្ញៀវ។</span></p>
+    <div class="accent-line reveal reveal-delay-3"></div>
+
+    <div class="features-bento">
+      <!-- Real-time Sync - Large card -->
+      <div class="feat-card feat-card-large reveal">
+        <div class="feat-icon-wrap">
+          <span class="feat-icon">&#9889;</span>
+        </div>
+        <div class="feat-content">
+          <h3 class="feat-title"><span class="lang-en">Real-time Sync</span><span class="lang-km">Real-time Sync</span></h3>
+          <p class="feat-desc"><span class="lang-en">All apps update instantly via Supabase real-time subscriptions. No page refresh needed.</span><span class="lang-km">App ទាំងអស់ update ភ្លាមៗតាមរយៈ Supabase real-time subscriptions។ មិនចាំបាច់ refresh ទំព័រ។</span></p>
+        </div>
+        <div class="feat-bg-icon" aria-hidden="true">&#9889;</div>
+      </div>
+
+      <!-- Telegram Security -->
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon-wrap">
+          <span class="feat-icon">&#128274;</span>
+        </div>
+        <div class="feat-content">
+          <h3 class="feat-title"><span class="lang-en">Telegram Security</span><span class="lang-km">Telegram Security</span></h3>
+          <p class="feat-desc"><span class="lang-en">Orders tied to Telegram identity. Access codes for table verification. End-to-end encrypted.</span><span class="lang-km">ការកម្ម៉ង់ភ្ជាប់ជាមួយ Telegram identity។ Access codes សម្រាប់ផ្ទៀងផ្ទាត់តុ។ End-to-end encrypted។</span></p>
+        </div>
+      </div>
+
+      <!-- Cost Effective -->
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon-wrap">
+          <span class="feat-icon">&#128179;</span>
+        </div>
+        <div class="feat-content">
+          <h3 class="feat-title"><span class="lang-en">Cost Effective</span><span class="lang-km">Cost Effective</span></h3>
+          <p class="feat-desc"><span class="lang-en">No dedicated hardware. No expensive POS licenses. Runs entirely on existing phones.</span><span class="lang-km">មិនត្រូវការ hardware ផ្ទាល់។ មិនមាន POS licenses ថ្លៃៗ។ ដំណើរការទាំងស្រុងលើទូរស័ព្ទដែលមានស្រាប់។</span></p>
+        </div>
+      </div>
+
+      <!-- Instant Setup -->
+      <div class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon-wrap">
+          <span class="feat-icon">&#128640;</span>
+        </div>
+        <div class="feat-content">
+          <h3 class="feat-title"><span class="lang-en">Instant Setup</span><span class="lang-km">Instant Setup</span></h3>
+          <p class="feat-desc"><span class="lang-en">Deploy in minutes. Generate QR codes. Train staff in under 10 minutes.</span><span class="lang-km">Deploy ក្នុងរយៈពេលប៉ុន្មាននាទី។ បង្កើត QR codes។ បណ្តុះបណ្តាល staff ក្នុងរយៈពេលតិចជាង 10 នាទី។</span></p>
+        </div>
+      </div>
+
+      <!-- Full Analytics -->
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon-wrap">
+          <span class="feat-icon">&#128200;</span>
+        </div>
+        <div class="feat-content">
+          <h3 class="feat-title"><span class="lang-en">Full Analytics</span><span class="lang-km">Full Analytics</span></h3>
+          <p class="feat-desc"><span class="lang-en">Admin dashboard with sales reports, popular items, customer insights, and stock alerts.</span><span class="lang-km">Admin dashboard ជាមួយ sales reports, មុខម្ហូបពេញនិយម, customer insights, និង stock alerts។</span></p>
+        </div>
+      </div>
+
+      <!-- Multi-user -->
+      <div class="feat-card feat-card-wide reveal reveal-delay-3">
+        <div class="feat-icon-wrap">
+          <span class="feat-icon">&#128101;</span>
+        </div>
+        <div class="feat-content">
+          <h3 class="feat-title"><span class="lang-en">Multi-user</span><span class="lang-km">Multi-user</span></h3>
+          <p class="feat-desc"><span class="lang-en">Unlimited staff accounts with role-based access. Driver, kitchen, manager permissions.</span><span class="lang-km">Staff accounts គ្មានដែនកំណត់ជាមួយ role-based access។ Driver, kitchen, manager permissions។</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 7: SECURITY
+     ============================================ -->
+<section class="section" id="security" data-index="7">
+  <div class="section-inner">
+    <span class="label-tag reveal"><span class="lang-en">Security</span><span class="lang-km">Security</span></span>
+    <h2 class="section-title reveal reveal-delay-1"><span class="lang-en">Enterprise-grade <span class="italic">by Design</span></span><span class="lang-km">Enterprise-grade <span class="italic">តាំងពីរចនា</span></span></h2>
+    <p class="section-sub reveal reveal-delay-2"><span class="lang-en">Security isn't a feature — it's the foundation. Every order, every message, every click is protected.</span><span class="lang-km">Security មិនមែនគ្រាន់តែ feature ទេ — វាជាមូលដ្ឋានគ្រឹះ។ រាល់ការកម្ម៉ង់ រាល់សារ រាល់ការចុច ទាំងអស់ត្រូវបានការពារ។</span></p>
+    <div class="accent-line reveal reveal-delay-3"></div>
+
+    <div class="security-grid-new">
+      <!-- Shield Card -->
+      <div class="sec-card sec-card-shield reveal reveal-delay-4">
+        <div class="sec-shield-icon" aria-hidden="true">&#128737;</div>
+        <div class="sec-shield-text">
+          <span class="lang-en">Your data is protected at every level</span>
+          <span class="lang-km">ទិន្នន័យរបស់អ្នកត្រូវបានការពារគ្រប់កម្រិត</span>
+        </div>
+      </div>
+
+      <!-- Security Checklist -->
+      <div class="sec-checklist reveal reveal-delay-5">
+        <div class="sec-check-item">
+          <div class="sec-check-icon">&#10003;</div>
+          <div class="sec-check-text">
+            <span class="lang-en">Row-Level Security on every database table</span>
+            <span class="lang-km">Row-Level Security លើគ្រប់ database table</span>
+          </div>
+        </div>
+        <div class="sec-check-item">
+          <div class="sec-check-icon">&#10003;</div>
+          <div class="sec-check-text">
+            <span class="lang-en">Telegram-authenticated user sessions</span>
+            <span class="lang-km">Telegram-authenticated user sessions</span>
+          </div>
+        </div>
+        <div class="sec-check-item">
+          <div class="sec-check-icon">&#10003;</div>
+          <div class="sec-check-text">
+            <span class="lang-en">Daily access codes for dine-in verification</span>
+            <span class="lang-km">Daily access codes សម្រាប់ dine-in verification</span>
+          </div>
+        </div>
+        <div class="sec-check-item">
+          <div class="sec-check-icon">&#10003;</div>
+          <div class="sec-check-text">
+            <span class="lang-en">Encrypted data in transit and at rest</span>
+            <span class="lang-km">Encrypted data in transit និង at rest</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 8: ADVANTAGES
+     ============================================ -->
+<section class="section" id="advantages" data-index="8">
+  <div class="section-inner">
+    <span class="label-tag reveal"><span class="lang-en">Advantages</span><span class="lang-km">Advantages</span></span>
+    <h2 class="section-title reveal reveal-delay-1"><span class="lang-en">Built for <span class="italic">Performance</span></span><span class="lang-km">បង្កើតសម្រាប់ <span class="italic">Performance</span></span></h2>
+    <p class="section-sub reveal reveal-delay-2"><span class="lang-en">A modern foundation focused on reliability, speed, and security — no unnecessary complexity.</span><span class="lang-km">មូលដ្ឋានគ្រឹះទំនើបផ្តោតលើ reliability, speed, និង security — គ្មានភាពស្មុគស្មាញមិនចាំបាច់។</span></p>
+    <div class="accent-line reveal reveal-delay-3"></div>
+
+    <div class="adv-bento">
+      <div class="adv-card-new reveal">
+        <div class="adv-number">01</div>
+        <div class="adv-icon-wrap"><span class="adv-icon">&#9889;</span></div>
+        <div class="adv-content">
+          <h3 class="adv-title"><span class="lang-en">Real-time</span><span class="lang-km">Real-time</span></h3>
+          <p class="adv-desc"><span class="lang-en">Every update syncs instantly across all devices. No page refreshes, no delays.</span><span class="lang-km">រាល់ update sync ភ្លាមៗលើគ្រប់ device។ គ្មាន refresh ទំព័រ គ្មាន delay។</span></p>
+        </div>
+      </div>
+
+      <div class="adv-card-new reveal reveal-delay-1">
+        <div class="adv-number">02</div>
+        <div class="adv-icon-wrap"><span class="adv-icon">&#128737;</span></div>
+        <div class="adv-content">
+          <h3 class="adv-title"><span class="lang-en">Secure by Default</span><span class="lang-km">Secure by Default</span></h3>
+          <p class="adv-desc"><span class="lang-en">End-to-end encryption, row-level security, and Telegram-authenticated sessions.</span><span class="lang-km">End-to-end encryption, row-level security, និង Telegram-authenticated sessions។</span></p>
+        </div>
+      </div>
+
+      <div class="adv-card-new reveal reveal-delay-2">
+        <div class="adv-number">03</div>
+        <div class="adv-icon-wrap"><span class="adv-icon">&#128640;</span></div>
+        <div class="adv-content">
+          <h3 class="adv-title"><span class="lang-en">Lightning Fast</span><span class="lang-km">Lightning Fast</span></h3>
+          <p class="adv-desc"><span class="lang-en">Optimized for instant load times. No bloat, no unnecessary dependencies.</span><span class="lang-km">Optimized សម្រាប់ load times ភ្លាមៗ។ គ្មាន bloat គ្មាន dependencies មិនចាំបាច់។</span></p>
+        </div>
+      </div>
+
+      <div class="adv-card-new reveal">
+        <div class="adv-number">04</div>
+        <div class="adv-icon-wrap"><span class="adv-icon">&#128260;</span></div>
+        <div class="adv-content">
+          <h3 class="adv-title"><span class="lang-en">Always Available</span><span class="lang-km">Always Available</span></h3>
+          <p class="adv-desc"><span class="lang-en">Designed for 99.9% uptime with automatic scaling and redundant infrastructure.</span><span class="lang-km">រចនាសម្រាប់ 99.9% uptime ជាមួយ automatic scaling និង redundant infrastructure។</span></p>
+        </div>
+      </div>
+
+      <div class="adv-card-new reveal reveal-delay-1">
+        <div class="adv-number">05</div>
+        <div class="adv-icon-wrap"><span class="adv-icon">&#128200;</span></div>
+        <div class="adv-content">
+          <h3 class="adv-title"><span class="lang-en">Data-Driven</span><span class="lang-km">Data-Driven</span></h3>
+          <p class="adv-desc"><span class="lang-en">Real-time analytics, smart reporting, and actionable insights at your fingertips.</span><span class="lang-km">Real-time analytics, smart reporting, និង actionable insights នៅចុងដៃអ្នក។</span></p>
+        </div>
+      </div>
+
+      <div class="adv-card-new reveal reveal-delay-2">
+        <div class="adv-number">06</div>
+        <div class="adv-icon-wrap"><span class="adv-icon">&#128101;</span></div>
+        <div class="adv-content">
+          <h3 class="adv-title"><span class="lang-en">Team Ready</span><span class="lang-km">Team Ready</span></h3>
+          <p class="adv-desc"><span class="lang-en">Multi-user with role-based access. Unlimited staff, drivers, and managers.</span><span class="lang-km">Multi-user ជាមួយ role-based access។ Staff, drivers, និង managers គ្មានដែនកំណត់។</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 9: CTA
+     ============================================ -->
+<section class="section" id="cta" data-index="9">
+  <div class="section-inner" style="max-width:700px;">
+    <span class="label-tag reveal" style="justify-content:center;"><span class="lang-en">Get Started</span><span class="lang-km">ចាប់ផ្តើម</span></span>
+    <h2 class="cta-title reveal reveal-delay-1"><span class="lang-en">Ready to Transform<br>Your <span class="italic">Restaurant</span>?</span><span class="lang-km">ត្រៀមខ្លួនដើម្បីផ្លាស់ប្តូរ<br><span class="italic">ភោជនីយដ្ឋាន</span> របស់អ្នក?</span></h2>
+    <p class="cta-sub reveal reveal-delay-2"><span class="lang-en">Deploy the complete platform in minutes. No hardware, no contracts, no friction.</span><span class="lang-km">Deploy platform ពេញលេញក្នុងរយៈពេលប៉ុន្មាននាទី។ គ្មាន hardware គ្មានកិច្ចសន្យា គ្មានឧបសគ្គ។</span></p>
+    <div class="hero-actions reveal reveal-delay-3">
+      <a href="https://mini-app-plum-ten.vercel.app/" target="_blank" rel="noopener" class="btn btn-primary"><span class="lang-en">&#128241; Try the Dine-In App</span><span class="lang-km">&#128241; សាកល្បង Dine-In App</span></a>
+      <a href="https://admin-app-zeta-pink.vercel.app/?autoLogin=viewer" target="_blank" rel="noopener" class="btn btn-outline"><span class="lang-en">&#128187; View Admin App</span><span class="lang-km">&#128187; មើល Admin App</span></a>
+    </div>
+    <div class="cta-note reveal reveal-delay-4">
+      <span class="lang-en">Default Dine-In access code: <strong>9999</strong></span>
+      <span class="lang-km">Default Dine-In access code: <strong>9999</strong></span>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  'use strict';
+
+  var sections = document.querySelectorAll('.section');
+  var total = sections.length;
+  var current = 0;
+  var isScrolling = false;
+  var navBar = document.getElementById('navBar');
+  var navDots = document.getElementById('navDots');
+  var navPrev = document.getElementById('navPrev');
+  var navNext = document.getElementById('navNext');
+  var progress = document.getElementById('progressFill');
+  var themeToggle = document.getElementById('themeToggle');
+  var themeIcon = document.getElementById('themeIcon');
+  var langToggle = document.getElementById('langToggle');
+  var scrollTimeout;
+
+  // Onboarding
+  var onboarding = document.getElementById('onboarding');
+  var onboardContinue = document.getElementById('onboardContinue');
+  var themeOptions = document.getElementById('themeOptions');
+  var langOptions = document.getElementById('langOptions');
+  var selectedTheme = null;
+  var selectedLang = null;
+
+  function checkOnboardReady() {
+    if (selectedTheme && selectedLang) {
+      onboardContinue.classList.add('active');
+    } else {
+      onboardContinue.classList.remove('active');
+    }
+  }
+
+  if (themeOptions) {
+    themeOptions.querySelectorAll('.onboarding-option').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        themeOptions.querySelectorAll('.onboarding-option').forEach(function(b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        selectedTheme = btn.getAttribute('data-theme-choice');
+        document.documentElement.setAttribute('data-theme', selectedTheme);
+        checkOnboardReady();
+      });
+    });
+  }
+
+  if (langOptions) {
+    langOptions.querySelectorAll('.onboarding-option').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        langOptions.querySelectorAll('.onboarding-option').forEach(function(b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        selectedLang = btn.getAttribute('data-lang-choice');
+        document.documentElement.setAttribute('data-lang', selectedLang);
+        checkOnboardReady();
+      });
+    });
+  }
+
+  if (onboardContinue) {
+    onboardContinue.addEventListener('click', function() {
+      if (!selectedTheme || !selectedLang) return;
+      localStorage.setItem('tom-theme', selectedTheme);
+      localStorage.setItem('tom-lang', selectedLang);
+      localStorage.setItem('tom-visited', 'true');
+      onboarding.classList.add('hidden');
+      if (langToggle) langToggle.textContent = selectedLang === 'en' ? '🇬🇧 EN' : '🇰🇭 ខ្មែរ';
+    });
+  }
+
+  // Language toggle (after onboarding)
+  var savedLang = localStorage.getItem('tom-lang') || 'en';
+  document.documentElement.setAttribute('data-lang', savedLang);
+  if (langToggle) {
+    langToggle.textContent = savedLang === 'en' ? '🇬🇧 EN' : '🇰🇭 ខ្មែរ';
+    langToggle.addEventListener('click', function() {
+      var currentLang = document.documentElement.getAttribute('data-lang');
+      var newLang = currentLang === 'en' ? 'km' : 'en';
+      document.documentElement.setAttribute('data-lang', newLang);
+      localStorage.setItem('tom-lang', newLang);
+      langToggle.textContent = newLang === 'en' ? '🇬🇧 EN' : '🇰🇭 ខ្មែរ';
+    });
+  }
+
+  // Theme toggle
+  var sunIcon = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+  var moonIcon = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+  
+  function updateThemeIcon(theme) {
+    themeIcon.innerHTML = theme === 'dark' ? sunIcon : moonIcon;
+  }
+  
+  updateThemeIcon(document.documentElement.getAttribute('data-theme'));
+  
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function() {
+      var currentTheme = document.documentElement.getAttribute('data-theme');
+      var newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('tom-theme', newTheme);
+      updateThemeIcon(newTheme);
+    });
+  }
+
+  // Build dots
+  for (var i = 0; i < total; i++) {
+    var dot = document.createElement('button');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Go to section ' + (i + 1));
+    dot.setAttribute('data-index', i);
+    dot.addEventListener('click', function() { goTo(parseInt(this.getAttribute('data-index'))); });
+    navDots.appendChild(dot);
+  }
+
+  function goTo(index) {
+    if (index < 0) index = 0;
+    if (index >= total) index = total - 1;
+    if (index === current) return;
+    current = index;
+    sections[current].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    updateUI();
+  }
+
+  function updateUI() {
+    var dots = navDots.querySelectorAll('.nav-dot');
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === current); });
+    navPrev.disabled = current === 0;
+    navNext.disabled = current === total - 1;
+  }
+
+  function prev() { goTo(current - 1); }
+  function next() { goTo(current + 1); }
+
+  navPrev.addEventListener('click', prev);
+  navNext.addEventListener('click', next);
+
+  // Keyboard
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prev(); }
+  });
+
+  // Wheel — only navigate when user is at page edge,
+  // never interrupt mid-section scrolling
+  var wheelAccum = 0;
+  document.addEventListener('wheel', function(e) {
+    var atTop = window.scrollY <= 0;
+    var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 5;
+
+    // Only intercept wheel when at page boundaries
+    if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
+      if (isScrolling) return;
+      clearTimeout(scrollTimeout);
+      isScrolling = true;
+      scrollTimeout = setTimeout(function() { isScrolling = false; }, 600);
+      if (e.deltaY > 0) next();
+      else prev();
+    }
+    // Otherwise let the browser scroll naturally
+  }, { passive: true });
+
+  // Touch swipe — require fast, deliberate gesture
+  var touchStartY = 0;
+  var touchStartX = 0;
+  var touchStartTime = 0;
+  document.addEventListener('touchstart', function(e) {
+    touchStartY = e.changedTouches[0].screenY;
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartTime = Date.now();
+  }, { passive: true });
+  document.addEventListener('touchend', function(e) {
+    if (isScrolling) return;
+    var dy = e.changedTouches[0].screenY - touchStartY;
+    var dx = e.changedTouches[0].screenX - touchStartX;
+    var dt = Date.now() - touchStartTime;
+    // Must be fast (< 300ms), long (> 60px), and primarily vertical
+    if (dt > 300 || Math.abs(dy) < 60 || Math.abs(dy) < Math.abs(dx) * 1.5) return;
+    clearTimeout(scrollTimeout);
+    isScrolling = true;
+    scrollTimeout = setTimeout(function() { isScrolling = false; }, 600);
+    if (dy < 0) next();
+    else prev();
+  }, { passive: true });
+
+  // Intersection Observer for active section
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var idx = parseInt(entry.target.getAttribute('data-index'));
+        if (!isNaN(idx) && idx !== current) {
+          current = idx;
+          updateUI();
+        }
+      }
+    });
+  }, { threshold: 0.5 });
+
+  sections.forEach(function(s) { sectionObserver.observe(s); });
+
+  // Reveal animations
+  var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(function(el) {
+    revealObserver.observe(el);
+  });
+
+  // Progress bar
+  window.addEventListener('scroll', function() {
+    var scrollTop = window.scrollY;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progress.style.width = pct + '%';
+  }, { passive: true });
+
+  // Nav bar hide/show on scroll
+  var lastScrollY = 0;
+  var navTimeout;
+  window.addEventListener('scroll', function() {
+    clearTimeout(navTimeout);
+    navBar.classList.remove('hidden');
+    lastScrollY = window.scrollY;
+    navTimeout = setTimeout(function() {
+      navBar.classList.add('hidden');
+    }, 3000);
+  }, { passive: true });
+
+  // Counter animation for stats
+  var counted = false;
+  var countObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !counted) {
+        counted = true;
+        document.querySelectorAll('.stat-value[data-count]').forEach(function(el) {
+          var target = parseInt(el.getAttribute('data-count'));
+          var currentVal = 0;
+          var increment = Math.ceil(target / 40);
+          var timer = setInterval(function() {
+            currentVal += increment;
+            if (currentVal >= target) { currentVal = target; clearInterval(timer); }
+            el.textContent = currentVal;
+          }, 40);
+        });
+      }
+    });
+  }, { threshold: 0.5 });
+  var statsSection = document.getElementById('stats');
+  if (statsSection) countObserver.observe(statsSection);
+
+  // Hide nav initially after 2s
+  setTimeout(function() { navBar.classList.add('hidden'); }, 3000);
+
+  // Fix first load scroll position
+  if (window.scrollY === 0) {
+    sections[0].scrollIntoView({ block: 'start' });
+  }
+
+  // Handle initial section detection
+  setTimeout(function() {
+    sections.forEach(function(s, i) {
+      var rect = s.getBoundingClientRect();
+      if (rect.top <= window.innerHeight * 0.5 && rect.bottom >= window.innerHeight * 0.5) {
+        current = i;
+        updateUI();
+      }
+    });
+  }, 100);
+
+  // === Animated Counter Enhancement ===
+  var counted = false;
+  var countObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !counted) {
+        counted = true;
+        document.querySelectorAll('.stat-value[data-count]').forEach(function(el) {
+          var target = parseInt(el.getAttribute('data-count'));
+          var currentVal = 0;
+          var increment = Math.ceil(target / 40);
+          var timer = setInterval(function() {
+            currentVal += increment;
+            if (currentVal >= target) { currentVal = target; clearInterval(timer); }
+            el.textContent = currentVal;
+          }, 40);
+        });
+      }
+    });
+  }, { threshold: 0.5 });
+  var statsSection = document.getElementById('stats');
+  if (statsSection) countObserver.observe(statsSection);
+
+  // Hide nav initially after 2s
+  setTimeout(function() { navBar.classList.add('hidden'); }, 3000);
+
+  // Fix first load scroll position
+  if (window.scrollY === 0) {
+    sections[0].scrollIntoView({ block: 'start' });
+  }
+
+  // Handle initial section detection
+  setTimeout(function() {
+    sections.forEach(function(s, i) {
+      var rect = s.getBoundingClientRect();
+      if (rect.top <= window.innerHeight * 0.5 && rect.bottom >= window.innerHeight * 0.5) {
+        current = i;
+        updateUI();
+      }
+    });
+  }, 100);
+})();
+</script>
+</body>
+</html>
